@@ -1,0 +1,15 @@
+<?php
+
+namespace App\Helpers;
+
+class Util
+{
+    public static function generateNumber($length = 1)
+    {
+        $randomNumber = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomNumber .= rand(0, 9);
+        }
+        return $randomNumber;
+    }
+}

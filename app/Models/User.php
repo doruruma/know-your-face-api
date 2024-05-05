@@ -16,9 +16,15 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
+        'position_id',
+        'nik',
         'name',
+        'phone',
         'email',
         'password',
+        'profile_image',
+        'face_image',
+        'is_admin'
     ];
 
     /**
@@ -42,5 +48,25 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function position()
+    {
+        return $this->belongsTo(Position::class);
+    }
+    
+    public function scheduleXUsers()
+    {
+        return $this->hasMany(ScheduleXUser::class);
+    }
+
+    public function leaves()
+    {
+        return $this->hasMany(Leave::class);
+    }
+
+    public function presences()
+    {
+        return $this->hasMany(Presence::class);
     }
 }
