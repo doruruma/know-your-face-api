@@ -14,16 +14,17 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->integer('position_id');
-            $table->string('nik', 16)->unique();
+            $table->string('nik', 16);
             $table->string('name');
             $table->string('phone', 13);
             $table->string('gender'); // M or F
-            $table->string('email')->unique();            
+            $table->string('email');
             $table->string('password');
             $table->string('profile_image')->nullable();
-            $table->string('face_image')->nullable();            
+            $table->string('face_image')->nullable();
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

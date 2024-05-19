@@ -2,6 +2,8 @@
 
 namespace App\Helpers;
 
+use Carbon\Carbon;
+
 class Util
 {
     public static function generateNumber($length = 1)
@@ -11,5 +13,10 @@ class Util
             $randomNumber .= rand(0, 9);
         }
         return $randomNumber;
+    }
+
+    public static function formatDateTime($dateTime)
+    {
+        return Carbon::parse($dateTime)->format('d-m-Y H:i');
     }
 }
