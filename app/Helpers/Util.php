@@ -15,8 +15,8 @@ class Util
         return $randomNumber;
     }
 
-    public static function formatDateTime($dateTime)
+    public static function formatDateTime($dateTime, $format = 'd-m-Y H:i')
     {
-        return Carbon::parse($dateTime)->format('d-m-Y H:i');
+        return Carbon::parse($dateTime)->format($format);
     }
 }
