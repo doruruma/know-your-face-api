@@ -16,10 +16,11 @@ return new class extends Migration
             $table->integer('leave_type_id');
             $table->integer('workstate_id');
             $table->integer('user_id');
-            $table->integer('approver_user_id');
-            $table->dateTime('approved_date');
-            $table->string('attachment');
+            $table->integer('approver_user_id')->nullable();
+            $table->dateTime('approved_date')->nullable();
+            $table->string('attachment')->nullable();
             $table->text('notes');
+            $table->text('approval_notes')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

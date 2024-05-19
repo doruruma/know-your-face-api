@@ -16,6 +16,16 @@ class Leave extends Model
         return $this->hasMany(LeaveDetail::class);
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function approver()
+    {
+        return $this->belongsTo(User::class, 'approver_user_id');
+    }
+
     public function leaveType()
     {
         return $this->belongsTo(LeaveType::class);

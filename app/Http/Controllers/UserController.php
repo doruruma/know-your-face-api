@@ -47,7 +47,7 @@ class UserController extends Controller
         $user = User::find($id);
         if (!$user)
             return response()->json([
-                'message' => 'User not found'
+                'message' => 'Pegawai tidak ditemukan'
             ], 500);
         if (!Hash::check($request->old_password, $user->password))
             return response()->json([
@@ -65,7 +65,7 @@ class UserController extends Controller
         $user = User::find($id);
         if (!$user)
             return response()->json([
-                'message' => 'User not found'
+                'message' => 'Pegawai tidak ditemukan'
             ], 500);
         $user->name = $request->name;
         $user->phone = $request->phone;
@@ -115,8 +115,8 @@ class UserController extends Controller
         try {
             if ($request->hasFile('profile_image')) {
                 $file = $request->file('profile_image');
-                $profileImage = $user->email . '-profile' . $file->getClientOriginalName();
-                $file->storeAs('public/profile-images', $profileImage);
+                $profileImage = $user->email . $file->getClientOriginalName();
+                $file->storeAs('profile-images', $profileImage);
                 $user->profile_image = $profileImage;
             }
         } catch (\Throwable $th) {
@@ -125,8 +125,8 @@ class UserController extends Controller
         try {
             if ($request->hasFile('face_image')) {
                 $file = $request->file('face_image');
-                $faceImage = $user->email . '-face' . $file->getClientOriginalName();
-                $file->storeAs('public/face-images', $faceImage);
+                $faceImage = $user->email . $file->getClientOriginalName();
+                $file->storeAs('face-images', $faceImage);
                 $user->face_image = $faceImage;
             }
         } catch (\Throwable $th) {
@@ -141,7 +141,7 @@ class UserController extends Controller
         $user = User::find($id);
         if (!$user)
             return response()->json([
-                'message' => 'User not found'
+                'message' => 'Pegawai tidak ditemukan'
             ], 500);
         if (!in_array($request->gender, $this->genders))
             return response()->json([
@@ -192,12 +192,12 @@ class UserController extends Controller
         $currentUserId = Auth::user()->id;
         if ($id == $currentUserId)
             return response()->json([
-                'message' => 'Cannot delete current logged user'
+                'message' => 'Tidak bisa menghapus akun ini'
             ], 500);
         $user = User::find($id);
         if (!$user)
             return response()->json([
-                'message' => 'User not found'
+                'message' => 'Pegawai tidak ditemukan'
             ], 500);
         try {
             if ($user->face_image)

@@ -29,6 +29,11 @@ class WorkstateSeeder extends Seeder
                 'name' => 'Ditolak',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
+            ],
+            [
+                'name' => 'Dibatalkan',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
             ]
         ];
         Workstate::insert($arr);
