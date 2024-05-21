@@ -15,6 +15,10 @@ Route::get('/', function () {
     ]);
 });
 
+// auth
+Route::post('login', [UserController::class, 'login']);
+Route::post('refresh-token', [UserController::class, 'refreshtoken']);
+
 Route::middleware('auth:api')->group(function () {
     // leaves
     Route::get('leaves', [LeaveController::class, 'getAll']);
@@ -28,6 +32,8 @@ Route::middleware('auth:api')->group(function () {
     Route::get('leave-types', [LeaveTypeController::class, 'getAll']);
     // presences
     Route::get('presences', [PresenceController::class, 'getAll']);
+    Route::post('presence/clock-in', [PresenceController::class, 'clockIn']);
+    Route::post('presence/clock-out', [PresenceController::class, 'clockOut']);
     // positions
     Route::get('positions/get-staff', [PositionController::class, 'getStaff']);
     // users

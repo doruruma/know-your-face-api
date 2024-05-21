@@ -17,6 +17,9 @@ return new class extends Migration
             $table->date('date');
             $table->time('time_start');
             $table->time('time_end');
+            $table->string('longitude');
+            $table->string('latitude');
+            $table->integer('max_distance');
             $table->timestamps();
             $table->softDeletes();
         });

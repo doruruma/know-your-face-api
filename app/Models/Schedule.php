@@ -10,4 +10,9 @@ class Schedule extends Model
 {
     use HasFactory, SoftDeletes;
     protected $guarded = [];
+
+    public function scheduleXUsers()
+    {
+        return $this->hasMany(ScheduleXUser::class);
+    }    
 }
