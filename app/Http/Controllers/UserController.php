@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use app\Helpers\Constant;
+use App\Http\Requests\LoginFormRequest;
+use App\Http\Requests\RefreshTokenFormRequest;
 use App\Http\Requests\StoreUserFormRequest;
 use App\Http\Requests\UpdatePasswordFormRequest;
 use App\Http\Requests\UpdateProfileFormRequest;
@@ -13,6 +15,7 @@ use App\Models\User;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -21,6 +24,41 @@ use Illuminate\Support\Facades\Storage;
 class UserController extends Controller
 {
     protected $genders = ['m', 'f'];
+
+    public function login(LoginFormRequest $request): JsonResponse
+    {
+        $request->merge([
+            'grant_type'    => 'password',
+            'client_id'     => env('CLIENT_ID'),
+            'client_secret' => env('CLIENT_SECRET'),
+            'scope'         => '',
+        ]);
+        $proxy = Request::create('oauth/token', 'POST');
+        $response = json_decode(Route::dispatch($proxy)->getContent(), true);
+        $code = 200;
+        if (array_key_exists('error', $response)) {
+            $code = 400;
+            if ($response['error'] == 'invalid_grant')
+                $response = ['message' => 'Email atau password tidak valid!'];
+        }
+        return response()->json($response, $code);
+    }
+
+    public function refreshToken(RefreshTokenFormRequest $request): JsonResponse
+    {
+        $request->merge([
+            'grant_type'    => 'refresh_token',
+            'client_id'     => env('CLIENT_ID'),
+            'client_secret' => env('CLIENT_SECRET'),
+            'scope'         => '',
+        ]);
+        $proxy = Request::create('oauth/token', 'POST');
+        $response = json_decode(Route::dispatch($proxy)->getContent(), true);
+        $code = 200;
+        if (array_key_exists('error', $response))
+            $code = 400;
+        return response()->json($response, $code);
+    }
 
     public function getAll(Request $request): UserCollection
     {
@@ -40,50 +78,6 @@ class UserController extends Controller
             ->orderBy('name')
             ->paginate(Constant::$PAGE_SIZE);
         return new UserCollection($data);
-    }
-
-    public function updatePassword(UpdatePasswordFormRequest $request, $id): JsonResponse
-    {
-        $user = User::find($id);
-        if (!$user)
-            return response()->json([
-                'message' => 'Pegawai tidak ditemukan'
-            ], 500);
-        if (!Hash::check($request->old_password, $user->password))
-            return response()->json([
-                'errors' => [
-                    'old_password' => 'Password lama tidak valid'
-                ]
-            ], 422);
-        $user->password = Hash::make($request->new_password);
-        $user->save();
-        return (new UserResource($user))->response();
-    }
-
-    public function updateProfile(UpdateProfileFormRequest $request, $id): JsonResponse
-    {
-        $user = User::find($id);
-        if (!$user)
-            return response()->json([
-                'message' => 'Pegawai tidak ditemukan'
-            ], 500);
-        $user->name = $request->name;
-        $user->phone = $request->phone;
-        $profileImage = $user->profile_image;
-        try {
-            if ($request->hasFile('profile_image')) {
-                if ($profileImage != Constant::$USER_PROFILE_IMAGE)
-                    Storage::delete("profile-images/$profileImage");
-                $file = $request->file('profile_image');
-                $profileImage = $user->email . $file->getClientOriginalName();
-                $file->storeAs('profile-images', $profileImage);
-                $user->profile_image = $profileImage;
-            }
-        } catch (\Throwable $th) {
-            Log::error($th->getMessage());
-        }
-        $user->save();
-        return (new UserResource($user))->response();
     }
 
     public function getById($id): JsonResponse
@@ -208,6 +202,50 @@ class UserController extends Controller
             Log::error($th->getMessage());
         }
         $user->delete();
+        return (new UserResource($user))->response();
+    }
+
+    public function updatePassword(UpdatePasswordFormRequest $request, $id): JsonResponse
+    {
+        $user = User::find($id);
+        if (!$user)
+            return response()->json([
+                'message' => 'Pegawai tidak ditemukan'
+            ], 500);
+        if (!Hash::check($request->old_password, $user->password))
+            return response()->json([
+                'errors' => [
+                    'old_password' => 'Password lama tidak valid'
+                ]
+            ], 422);
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+        return (new UserResource($user))->response();
+    }
+
+    public function updateProfile(UpdateProfileFormRequest $request, $id): JsonResponse
+    {
+        $user = User::find($id);
+        if (!$user)
+            return response()->json([
+                'message' => 'Pegawai tidak ditemukan'
+            ], 500);
+        $user->name = $request->name;
+        $user->phone = $request->phone;
+        $profileImage = $user->profile_image;
+        try {
+            if ($request->hasFile('profile_image')) {
+                if ($profileImage != Constant::$USER_PROFILE_IMAGE)
+                    Storage::delete("profile-images/$profileImage");
+                $file = $request->file('profile_image');
+                $profileImage = $user->email . $file->getClientOriginalName();
+                $file->storeAs('profile-images', $profileImage);
+                $user->profile_image = $profileImage;
+            }
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+        }
+        $user->save();
         return (new UserResource($user))->response();
     }
 }
