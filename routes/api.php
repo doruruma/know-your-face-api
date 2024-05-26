@@ -49,10 +49,10 @@ Route::middleware('auth:api')->group(function () {
     Route::put('user/update-password/{id}', [UserController::class, 'updatePassword']);
     Route::delete('user/{id}', [UserController::class, 'delete']);
     // work-hours
-    Route::get('work-hours', [WorkHourController::class, 'getAll']);
-    Route::post('work-hour', [WorkHourController::class, 'store']);
-    Route::put('work-hour/{id}', [WorkHourController::class, 'update']);
-    Route::delete('work-hour/{id}', [WorkHourController::class, 'delete']);
+    // Route::get('work-hours', [WorkHourController::class, 'getAll']);
+    // Route::post('work-hour', [WorkHourController::class, 'store']);
+    // Route::put('work-hour/{id}', [WorkHourController::class, 'update']);
+    // Route::delete('work-hour/{id}', [WorkHourController::class, 'delete']);
     // workstates
     Route::get('workstates', [WorkstateController::class, 'getAll']);
 });

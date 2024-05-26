@@ -15,6 +15,12 @@ class Util
         return $randomNumber;
     }
 
+    public static function isWeekend()
+    {
+        $carbon = Carbon::now();
+        return $carbon->isWeekend();
+     }
+
     public static function formatDateTime($dateTime, $format = 'd-m-Y H:i')
     {
         return Carbon::parse($dateTime)->format($format);

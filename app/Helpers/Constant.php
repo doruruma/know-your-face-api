@@ -2,6 +2,8 @@
 
 namespace app\Helpers;
 
+use Carbon\Carbon;
+
 class Constant
 {
     // default pagination per page
@@ -18,4 +20,8 @@ class Constant
     public static $STATE_REJECTED_ID = 3;
     // workstate cancelled id
     public static $STATE_CANCELLED_ID = 4;
+    // default clock in
+    public static $CLOCK_IN_TIME = '08:00';
+    // default clock out
+    public static $CLOCK_OUT_TIME = '17:00';
 }

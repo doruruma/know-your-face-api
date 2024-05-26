@@ -6,13 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Schedule extends Model
+class RemoteSchedule extends Model
 {
     use HasFactory, SoftDeletes;
     protected $guarded = [];
 
-    public function scheduleXUsers()
+    public function user()
     {
-        return $this->hasMany(ScheduleXUser::class);
-    }    
+        return $this->belongsTo(User::class);
+    }
 }

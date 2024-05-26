@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('schedule_x_user', function (Blueprint $table) {
+        Schema::create('holidays', function (Blueprint $table) {
             $table->id();
-            $table->integer('schedule_id');
-            $table->integer('user_id');
-            $table->integer('is_wfh');
+            $table->string('name')->nullable();
+            $table->date('date');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('schedule_x_user');
+        Schema::dropIfExists('holidays');
     }
 };

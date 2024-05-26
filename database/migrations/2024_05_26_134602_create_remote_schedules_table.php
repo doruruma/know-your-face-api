@@ -11,15 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('schedules', function (Blueprint $table) {
+        Schema::create('remote_schedules', function (Blueprint $table) {
             $table->id();
-            $table->integer('is_day_off')->default(0);
+            $table->integer('user_id');
             $table->date('date');
-            $table->time('time_start');
-            $table->time('time_end');
-            $table->string('longitude');
-            $table->string('latitude');
-            $table->integer('max_distance');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -30,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('schedules');
+        Schema::dropIfExists('remote_schedules');
     }
 };

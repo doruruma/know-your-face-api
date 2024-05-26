@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('latitude_clock_out')->nullable();
             $table->string('face_image_clock_in');
             $table->string('face_image_clock_out')->nullable();
+            $table->integer('is_remote')->default(0);
             $table->timestamps();
             $table->softDeletes();
         });

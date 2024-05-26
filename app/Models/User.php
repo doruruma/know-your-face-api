@@ -55,10 +55,10 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Position::class);
     }
-    
-    public function scheduleXUsers()
+
+    public function remoteSchedules()
     {
-        return $this->hasMany(ScheduleXUser::class);
+        return $this->hasMany(RemoteSchedule::class);
     }
 
     public function leaves()

@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use app\Helpers\Constant;
+use App\Helpers\HolidayHelper;
 use App\Helpers\PresenceHelper;
-use App\Helpers\ScheduleHelper;
+use App\Helpers\RemoteScheduleHelper;
+use App\Helpers\SettingHelper;
 use App\Helpers\Util;
 use App\Http\Requests\ClockInFormRequest;
 use App\Http\Requests\ClockOutFormRequest;
@@ -35,12 +37,8 @@ class PresenceController extends Controller
 
     public function clockIn(ClockInFormRequest $request): JsonResponse
     {
-        $schedule = ScheduleHelper::getScheduleByUserIdToday($request->user_id);
-        if (!$schedule)
-            return response()->json([
-                'message' => 'Belum ada jadwal kerja untuk anda'
-            ], 500);
-        if ($schedule->is_day_off == 1)
+        $isTodayHoliday = HolidayHelper::isTodayHoliday();
+        if ($isTodayHoliday || Util::isWeekend())
             return response()->json([
                 'message' => 'Tidak bisa absen pada hari libur'
             ], 500);
@@ -48,16 +46,19 @@ class PresenceController extends Controller
             return response()->json([
                 'message' => 'Anda sudah absen hari ini'
             ], 500);
-        if ($schedule->is_wfh == 0) {
+        $setting = SettingHelper::getSetting();
+        $isTodayRemote = RemoteScheduleHelper::isTodayRemote($request->user_id);
+        if (!$isTodayRemote) {
             $distance = Util::calculateDistanceOfCoordinates(
-                $schedule->latitude,
-                $schedule->longitude,
+                $setting->latitude,
+                $setting->longitude,
                 $request->latitude_clock_in,
                 $request->longitude_clock_in
             );
-            if ($distance > $schedule->max_distance)
+            $maxDistance = $setting->max_distance;
+            if ($distance > $maxDistance)
                 return response()->json([
-                    'message' => "Jarak anda dengan lokasi kantor harus dibawah $schedule->max_distance"
+                    'message' => "Jarak anda dengan lokasi kantor harus dibawah $maxDistance"
                 ], 500);
         }
         $clockIn = new Presence;
@@ -75,46 +76,47 @@ class PresenceController extends Controller
             ], 500);
         }
         $clockIn->user_id = $request->user_id;
-        $clockIn->schedule_time_in = $schedule->time_start;
-        $clockIn->schedule_time_out = $schedule->time_end;
+        $clockIn->schedule_time_in = Constant::$CLOCK_IN_TIME;
+        $clockIn->schedule_time_out = Constant::$CLOCK_OUT_TIME;
         $clockIn->time_in = Carbon::now()->format('H:i');
         $clockIn->longitude_clock_in = $request->longitude_clock_in;
         $clockIn->latitude_clock_in = $request->latitude_clock_in;
+        $clockIn->is_remote = $isTodayRemote ? 1 : 0;
         $clockIn->save();
         return (new PresenceResource($clockIn))->response();
     }
 
     public function clockOut(ClockOutFormRequest $request): JsonResponse
     {
-        $isUserClockIn = PresenceHelper::isUserClockInToday($request->user_id);
-        if (!$isUserClockIn)
+        $presence = PresenceHelper::getTodayPresence($request->user_id);
+        if (!$presence)
             return response()->json([
                 'message' => 'Anda belum absen masuk hari ini'
             ], 500);
-        if ($isUserClockIn->face_image_clock_out)
+        if ($presence->face_image_clock_out)
             return response()->json([
                 'message' => 'Anda sudah absen pulang hari ini'
             ], 500);
-        $schedule = ScheduleHelper::getScheduleByUserIdToday($request->user_id);
-        if ($schedule->is_wfh == 0) {
+        $setting = SettingHelper::getSetting();
+        if ($presence->is_remote == 0) {
             $distance = Util::calculateDistanceOfCoordinates(
-                $schedule->latitude,
-                $schedule->longitude,
+                $setting->latitude,
+                $setting->longitude,
                 $request->latitude_clock_in,
                 $request->longitude_clock_in
             );
-            if ($distance > $schedule->max_distance)
+            $maxDistance = $setting->max_distance;
+            if ($distance > $maxDistance)
                 return response()->json([
-                    'message' => "Jarak anda dengan lokasi kantor harus dibawah $schedule->max_distance"
+                    'message' => "Jarak anda dengan lokasi kantor harus dibawah $maxDistance"
                 ], 500);
         }
-        $clockOut = new Presence;
         try {
             if ($request->hasFile('face_image_clock_out')) {
                 $file = $request->file('face_image_clock_out');
                 $faceImage = $request->user_id . '-clock-out' . $file->getClientOriginalName();
                 $file->storeAs('presences', $faceImage);
-                $clockOut->face_image_clock_out = $faceImage;
+                $presence->face_image_clock_out = $faceImage;
             }
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
@@ -122,11 +124,10 @@ class PresenceController extends Controller
                 'message' => 'Gagal mengupload foto wajah'
             ], 500);
         }
-        $clockOut->user_id = $request->user_id;        
-        $clockOut->time_out = Carbon::now()->format('H:i');
-        $clockOut->longitude_clock_out = $request->longitude_clock_out;
-        $clockOut->latitude_clock_out = $request->latitude_clock_out;
-        $clockOut->save();
-        return (new PresenceResource($clockOut))->response();
+        $presence->time_out = Carbon::now()->format('H:i');
+        $presence->longitude_clock_out = $request->longitude_clock_out;
+        $presence->latitude_clock_out = $request->latitude_clock_out;
+        $presence->save();
+        return (new PresenceResource($presence))->response();
     }
 }
