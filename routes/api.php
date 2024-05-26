@@ -5,6 +5,7 @@ use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\LeaveTypeController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\PresenceController;
+use App\Http\Controllers\RemoteScheduleController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\UserController;
 // use App\Http\Controllers\WorkHourController;
@@ -44,6 +45,12 @@ Route::middleware('auth:api')->group(function () {
     Route::post('presence/clock-out', [PresenceController::class, 'clockOut']);
     // positions
     Route::get('positions/get-staff', [PositionController::class, 'getStaff']);
+    // remote-schedules
+    Route::get('remote-schedules', [RemoteScheduleController::class, 'getAll']);
+    Route::get('remote-schedule/{id}', [RemoteScheduleController::class, 'getById']);
+    Route::post('remote-schedule', [RemoteScheduleController::class, 'store']);
+    Route::put('remote-schedule/{id}', [RemoteScheduleController::class, 'update']);
+    Route::delete('remote-schedule/{id}', [RemoteScheduleController::class, 'delete']);
     // settings
     Route::get('setting', [SettingController::class, 'get']);
     Route::put('setting', [SettingController::class, 'update']);
