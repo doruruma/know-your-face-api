@@ -4,6 +4,7 @@ use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\LeaveTypeController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\PresenceController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WorkHourController;
 use App\Http\Controllers\WorkstateController;
@@ -36,6 +37,9 @@ Route::middleware('auth:api')->group(function () {
     Route::post('presence/clock-out', [PresenceController::class, 'clockOut']);
     // positions
     Route::get('positions/get-staff', [PositionController::class, 'getStaff']);
+    // settings
+    Route::get('setting', [SettingController::class, 'get']);
+    Route::put('setting', [SettingController::class, 'update']);
     // users
     Route::get('users', [UserController::class, 'getAll']);
     Route::get('user/{id}', [UserController::class, 'getById']);
