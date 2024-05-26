@@ -20,7 +20,8 @@ class CustomFormRequest extends FormRequest
             'required' => ':attribute tidak boleh kosong',
             'present' => ':attribute is expected from request body',
             'confirmed' => 'Konfirmasi :attribute tidak sesuai',
-            'integer' => ':attribute harus berupa bilangan bulat'
+            'integer' => ':attribute harus berupa bilangan bulat',
+            'date' => ':attribute harus berupa tanggal'
         ];
     }
 }

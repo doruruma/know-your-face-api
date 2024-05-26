@@ -1,12 +1,13 @@
 <?php
 
+use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\LeaveTypeController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\WorkHourController;
+// use App\Http\Controllers\WorkHourController;
 use App\Http\Controllers\WorkstateController;
 use Illuminate\Support\Facades\Route;
 
@@ -21,6 +22,12 @@ Route::post('login', [UserController::class, 'login']);
 Route::post('refresh-token', [UserController::class, 'refreshtoken']);
 
 Route::middleware('auth:api')->group(function () {
+    // holiday
+    Route::get('holidays', [HolidayController::class, 'getAll']);
+    Route::get('holiday/{id}', [HolidayController::class, 'getById']);
+    Route::post('holiday', [HolidayController::class, 'store']);
+    Route::put('holiday/{id}', [HolidayController::class, 'update']);
+    Route::delete('holiday/{id}', [HolidayController::class, 'delete']);
     // leaves
     Route::get('leaves', [LeaveController::class, 'getAll']);
     Route::get('leave/{id}', [LeaveController::class, 'getById']);
