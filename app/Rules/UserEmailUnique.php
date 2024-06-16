@@ -22,7 +22,7 @@ class UserEmailUnique implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $wheres = ['email', $value];
+        $wheres = [['email', $value]];
         if ($this->id != 0)
             array_push($wheres, ['id', '!=', $this->id]);
         $existingUser = User::select('email')

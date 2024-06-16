@@ -15,22 +15,22 @@ class UserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        if ($this->gender == 'm')
+        if (strtolower($this->gender) == 'm')
             $gender = 'Laki-laki';
-        else if ($this->gender == 'f')
+        else if (strtolower($this->gender) == 'f')
             $gender = 'Perempuan';
         else
             $gender = 'LGBT';
         return [
             'id' => $this->id,
             'position_id' => $this->position_id,
-            'position' => $this->whenLoaded('position'), 
+            'position' => $this->whenLoaded('position'),
             'nik' => $this->nik,
             'name' => $this->name,
             'phone' => $this->phone,
             'gender' => $gender,
             'email' => $this->email,
-            'profile_image' => $this->profile_image,
+            'profile_image' => "storage/profile-images/$this->profile_image",
             'face_image' => $this->face_image,
             'created_at' => Util::formatDateTime($this->created_at),
             'updated_at' => Util::formatDateTime($this->updated_at)

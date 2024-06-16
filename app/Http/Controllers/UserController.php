@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use app\Helpers\Constant;
+use App\Helpers\Constant;
+use App\Helpers\StorageHelper;
 use App\Http\Requests\LoginFormRequest;
 use App\Http\Requests\RefreshTokenFormRequest;
 use App\Http\Requests\StoreUserFormRequest;
@@ -91,7 +92,7 @@ class UserController extends Controller
     public function store(StoreUserFormRequest $request): JsonResponse
     {
         $user = new User;
-        if (!in_array($request->gender, $this->genders))
+        if (!in_array(strtolower($request->gender), $this->genders))
             return response()->json([
                 'errors' => [
                     'gender' => 'Jenis kelamin tidak valid'
@@ -103,28 +104,22 @@ class UserController extends Controller
         $user->phone = $request->phone;
         $user->gender = $request->gender;
         $user->email = $request->email;
-        $user->password = $request->password;
+        $user->password = Hash::make($request->password);
         $faceImage = null;
         $profileImage = Constant::$USER_PROFILE_IMAGE;
-        try {
-            if ($request->hasFile('profile_image')) {
-                $file = $request->file('profile_image');
-                $profileImage = $user->email . $file->getClientOriginalName();
-                $file->storeAs('profile-images', $profileImage);
+        if ($request->hasFile('profile_image')) {
+            $file = $request->file('profile_image');
+            $profileImage = $user->nik . "-" . str_replace(' ', '-', $user->name) . $file->getClientOriginalName();
+            $putFile = StorageHelper::putFileAs('profile-images', $file, $profileImage);
+            if ($putFile)
                 $user->profile_image = $profileImage;
-            }
-        } catch (\Throwable $th) {
-            Log::error($th->getMessage());
         }
-        try {
-            if ($request->hasFile('face_image')) {
-                $file = $request->file('face_image');
-                $faceImage = $user->email . $file->getClientOriginalName();
-                $file->storeAs('face-images', $faceImage);
+        if ($request->hasFile('face_image')) {
+            $file = $request->file('face_image');
+            $faceImage = $user->nik . "-" . str_replace(' ', '-', $user->name) . $file->getClientOriginalName();
+            $putFile = StorageHelper::putFileAs('face-images', $file, $faceImage);
+            if ($putFile)
                 $user->face_image = $faceImage;
-            }
-        } catch (\Throwable $th) {
-            Log::error($th->getMessage());
         }
         $user->save();
         return (new UserResource($user))->response();
@@ -149,33 +144,27 @@ class UserController extends Controller
         $user->phone = $request->phone;
         $user->gender = $request->gender;
         $user->email = $request->email;
-        $user->password = $request->password;
+        $user->password = Hash::make($request->password);
         $faceImage = null;
         $profileImage = $user->profile_image;
         $faceImage = $user->face_image;
-        try {
-            if ($request->hasFile('profile_image')) {
-                if ($profileImage != Constant::$USER_PROFILE_IMAGE)
-                    Storage::delete("profile-images/$profileImage");
-                $file = $request->file('profile_image');
-                $profileImage = $user->email . $file->getClientOriginalName();
-                $file->storeAs('profile-images', $profileImage);
+        if ($request->hasFile('profile_image')) {
+            if ($profileImage != Constant::$USER_PROFILE_IMAGE)
+                StorageHelper::deleteFile("profile-images/$profileImage");
+            $file = $request->file('profile_image');
+            $profileImage = $user->nik . "-" . str_replace(' ', '-', $user->name) . $file->getClientOriginalName();
+            $putFile = StorageHelper::putFileAs('profile-images', $file, $profileImage);
+            if ($putFile)
                 $user->profile_image = $profileImage;
-            }
-        } catch (\Throwable $th) {
-            Log::error($th->getMessage());
         }
-        try {
-            if ($request->hasFile('face_image')) {
-                if ($faceImage)
-                    Storage::delete("face-images/$faceImage");
-                $file = $request->file('face_image');
-                $faceImage = $user->email . $file->getClientOriginalName();
-                $file->storeAs('face-images', $faceImage);
+        if ($request->hasFile('face_image')) {
+            if ($faceImage)
+                StorageHelper::deleteFile("face-images/$faceImage");
+            $file = $request->file('face_image');
+            $faceImage = $user->nik . "-" . str_replace(' ', '-', $user->name) . $file->getClientOriginalName();
+            $putFile = StorageHelper::putFileAs('face-images', $file, $faceImage);
+            if ($putFile)
                 $user->face_image = $faceImage;
-            }
-        } catch (\Throwable $th) {
-            Log::error($th->getMessage());
         }
         $user->save();
         return (new UserResource($user))->response();
@@ -195,11 +184,11 @@ class UserController extends Controller
             ], 500);
         try {
             if ($user->face_image)
-                Storage::delete("face-images/$user->face_image");
+                StorageHelper::deleteFile("face-images/$user->face_image");
             if ($user->profile_image != Constant::$USER_PROFILE_IMAGE)
-                Storage::delete("profile-images/$user->profile_image");
+                StorageHelper::deleteFile("profile-images/$user->profile_image");
         } catch (\Throwable $th) {
-            Log::error($th->getMessage());
+            Log::channel('storage')->error($th->getMessage());
         }
         $user->delete();
         return (new UserResource($user))->response();
@@ -243,7 +232,7 @@ class UserController extends Controller
                 $user->profile_image = $profileImage;
             }
         } catch (\Throwable $th) {
-            Log::error($th->getMessage());
+            Log::channel('storage')->error($th->getMessage());
         }
         $user->save();
         return (new UserResource($user))->response();

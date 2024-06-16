@@ -22,7 +22,7 @@ class UserNikUnique implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $wheres = ['nik', $value];
+        $wheres = [['nik', $value]];
         if ($this->id != 0)
             array_push($wheres, ['id', '!=', $this->id]);
         $existingUser = User::select('nik')
