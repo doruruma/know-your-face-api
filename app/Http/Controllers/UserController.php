@@ -19,8 +19,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -95,7 +93,7 @@ class UserController extends Controller
         if (!in_array(strtolower($request->gender), $this->genders))
             return response()->json([
                 'errors' => [
-                    'gender' => 'Jenis kelamin tidak valid'
+                    'gender' => ['Jenis kelamin tidak valid']
                 ]
             ], 422);
         $user->nik = $request->nik;
@@ -107,6 +105,7 @@ class UserController extends Controller
         $user->password = Hash::make($request->password);
         $faceImage = null;
         $profileImage = Constant::$USER_PROFILE_IMAGE;
+        $user->profile_image = $profileImage;
         if ($request->hasFile('profile_image')) {
             $file = $request->file('profile_image');
             $profileImage = $user->nik . "-" . str_replace(' ', '-', $user->name) . $file->getClientOriginalName();
@@ -132,10 +131,10 @@ class UserController extends Controller
             return response()->json([
                 'message' => 'Pegawai tidak ditemukan'
             ], 500);
-        if (!in_array($request->gender, $this->genders))
+        if (!in_array(strtolower($request->gender), $this->genders))
             return response()->json([
                 'errors' => [
-                    'gender' => 'Jenis kelamin tidak valid'
+                    'gender' => ['Jenis kelamin tidak valid']
                 ]
             ], 422);
         $user->nik = $request->nik;
@@ -144,8 +143,6 @@ class UserController extends Controller
         $user->phone = $request->phone;
         $user->gender = $request->gender;
         $user->email = $request->email;
-        $user->password = Hash::make($request->password);
-        $faceImage = null;
         $profileImage = $user->profile_image;
         $faceImage = $user->face_image;
         if ($request->hasFile('profile_image')) {
@@ -182,14 +179,10 @@ class UserController extends Controller
             return response()->json([
                 'message' => 'Pegawai tidak ditemukan'
             ], 500);
-        try {
-            if ($user->face_image)
-                StorageHelper::deleteFile("face-images/$user->face_image");
-            if ($user->profile_image != Constant::$USER_PROFILE_IMAGE)
-                StorageHelper::deleteFile("profile-images/$user->profile_image");
-        } catch (\Throwable $th) {
-            Log::channel('storage')->error($th->getMessage());
-        }
+        if ($user->face_image)
+            StorageHelper::deleteFile("face-images/$user->face_image");
+        if ($user->profile_image != Constant::$USER_PROFILE_IMAGE)
+            StorageHelper::deleteFile("profile-images/$user->profile_image");
         $user->delete();
         return (new UserResource($user))->response();
     }
@@ -204,7 +197,7 @@ class UserController extends Controller
         if (!Hash::check($request->old_password, $user->password))
             return response()->json([
                 'errors' => [
-                    'old_password' => 'Password lama tidak valid'
+                    'old_password' => ['Password lama tidak valid']
                 ]
             ], 422);
         $user->password = Hash::make($request->new_password);
@@ -222,17 +215,14 @@ class UserController extends Controller
         $user->name = $request->name;
         $user->phone = $request->phone;
         $profileImage = $user->profile_image;
-        try {
-            if ($request->hasFile('profile_image')) {
-                if ($profileImage != Constant::$USER_PROFILE_IMAGE)
-                    Storage::delete("profile-images/$profileImage");
-                $file = $request->file('profile_image');
-                $profileImage = $user->email . $file->getClientOriginalName();
-                $file->storeAs('profile-images', $profileImage);
+        if ($request->hasFile('profile_image')) {
+            if ($profileImage != Constant::$USER_PROFILE_IMAGE)
+                StorageHelper::deleteFile("profile-images/$profileImage");
+            $file = $request->file('profile_image');
+            $profileImage = $user->nik . "-" . str_replace(' ', '-', $user->name) . $file->getClientOriginalName();
+            $putFile = StorageHelper::putFileAs('profile-images', $file, $profileImage);
+            if ($putFile)
                 $user->profile_image = $profileImage;
-            }
-        } catch (\Throwable $th) {
-            Log::channel('storage')->error($th->getMessage());
         }
         $user->save();
         return (new UserResource($user))->response();

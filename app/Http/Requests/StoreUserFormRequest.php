@@ -15,6 +15,7 @@ class StoreUserFormRequest extends UserFormRequest
     public function rules(): array
     {
         $rules = $this->rules;
+        $rules['password'] = ['required', 'confirmed'];
         $rules['nik'] = ['required', 'digits:16', new UserNikUnique()];
         $rules['email'] = ['required', 'email', new UserEmailUnique()];
         return $rules;

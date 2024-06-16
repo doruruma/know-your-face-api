@@ -11,7 +11,7 @@ class PositionController extends Controller
 {
     public function getStaff(Request $request): PositionCollection
     {
-        $data = Position::whereNotIn('id', [1, 2]);
+        $data = Position::whereNotIn('id', [1]);
         if ($request->has('search') && $request->search != '')
             $data = $data->where('name', 'like', "%$request->search%");
         $data = $data->orderBy('name')->paginate(Constant::$PAGE_SIZE);
@@ -20,7 +20,7 @@ class PositionController extends Controller
 
     public function getStaffNoPaging(Request $request): PositionCollection
     {
-        $data = Position::whereNotIn('id', [1, 2]);
+        $data = Position::whereNotIn('id', [1]);
         if ($request->has('search') && $request->search != '')
             $data = $data->where('name', 'like', "%$request->search%");
         $data = $data->orderBy('name')->get();

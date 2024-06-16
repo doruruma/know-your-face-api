@@ -9,7 +9,6 @@ class UserFormRequest extends CustomFormRequest
         'name' => 'required|max:255',
         'phone' => 'required|max_digits:13',
         'gender' => 'required',
-        'password' => 'required|confirmed',
         'profile_image' => 'nullable|file|max:4096|mimes:png,jpg',
         'face_image' => 'nullable|file|max:5120|mimes:png,jpg',
     ];
