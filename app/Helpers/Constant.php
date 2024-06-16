@@ -1,8 +1,6 @@
 <?php
 
-namespace app\Helpers;
-
-use Carbon\Carbon;
+namespace App\Helpers;
 
 class Constant
 {
