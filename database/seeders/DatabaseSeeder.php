@@ -16,5 +16,6 @@ class DatabaseSeeder extends Seeder
         $this->call(WorkstateSeeder::class);
         $this->call(WorkHourSeeder::class);
         $this->call(UserSeeder::class);
+        $this->call(SettingSeeder::class);
     }
 }

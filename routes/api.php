@@ -45,6 +45,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('presence/clock-out', [PresenceController::class, 'clockOut']);
     // positions
     Route::get('positions/get-staff', [PositionController::class, 'getStaff']);
+    Route::get('positions/get-staff-no-paging', [PositionController::class, 'getStaffNoPaging']);
     // remote-schedules
     Route::get('remote-schedules', [RemoteScheduleController::class, 'getAll']);
     Route::get('remote-schedule/{id}', [RemoteScheduleController::class, 'getById']);
