@@ -7,7 +7,7 @@ class Constant
     // default pagination per page
     public static $PAGE_SIZE = 15;
     // default user profile
-    public static $USER_PROFILE_IMAGE = 'profile-images/default-profile.png';
+    public static $USER_PROFILE_IMAGE = 'default-profile.png';
     // sick leave id
     public static $SICK_LEAVE_ID = 1;
     // workstate requested id

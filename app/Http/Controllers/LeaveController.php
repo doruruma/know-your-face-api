@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use app\Helpers\Constant;
+use App\Helpers\Constant;
 use App\Helpers\LeaveDetailHelper;
 use App\Http\Requests\ChangeLeaveStatusFormRequest;
 use App\Http\Requests\LeaveFormRequest;

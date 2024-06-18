@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use app\Helpers\Constant;
+use App\Helpers\Constant;
 use App\Helpers\HolidayHelper;
 use App\Helpers\PresenceHelper;
 use App\Helpers\RemoteScheduleHelper;
 use App\Helpers\SettingHelper;
+use App\Helpers\StorageHelper;
 use App\Helpers\Util;
 use App\Http\Requests\ClockInFormRequest;
 use App\Http\Requests\ClockOutFormRequest;
@@ -16,15 +17,16 @@ use App\Models\Presence;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class PresenceController extends Controller
 {
     public function getAll(Request $request): PresenceCollection
     {
-        $data = new Presence;
+        $data = Presence::with('user:id,name');
         if ($request->has('user_id') && $request->user_id != '')
             $data = $data->where('user_id', $request->user_id);
+        if ($request->has('is_remote') && $request->is_remote != '')
+            $data = $data->where('is_remote', $request->is_remote);
         if (
             ($request->has('start_date') && $request->start_date != '') &&
             ($request->has('end_date') && $request->end_date != '')
@@ -33,6 +35,14 @@ class PresenceController extends Controller
                 ->whereDate('created_at', '<=', $request->end_date);
         $data = $data->orderBy('created_at', 'DESC')->paginate(Constant::$PAGE_SIZE);
         return new PresenceCollection($data);
+    }
+
+    public function getById($id): JsonResponse
+    {
+        $data = Presence::with('user:id,name')->find($id);
+        if (!$data)
+            return response()->json(null, 204);
+        return (new PresenceResource($data))->response();
     }
 
     public function clockIn(ClockInFormRequest $request): JsonResponse
@@ -48,6 +58,7 @@ class PresenceController extends Controller
             ], 500);
         $setting = SettingHelper::getSetting();
         $isTodayRemote = RemoteScheduleHelper::isTodayRemote($request->user_id);
+        $clockIn = new Presence;
         if (!$isTodayRemote) {
             $distance = Util::calculateDistanceOfCoordinates(
                 $setting->latitude,
@@ -60,20 +71,17 @@ class PresenceController extends Controller
                 return response()->json([
                     'message' => "Jarak anda dengan lokasi kantor harus dibawah $maxDistance"
                 ], 500);
+            $clockIn->clock_in_distance = $distance;
         }
-        $clockIn = new Presence;
-        try {
-            if ($request->hasFile('face_image_clock_in')) {
-                $file = $request->file('face_image_clock_in');
-                $faceImage = $request->user_id . '-clock-in' . $file->getClientOriginalName();
-                $file->storeAs('presences', $faceImage);
-                $clockIn->face_image_clock_in = $faceImage;
-            }
-        } catch (\Throwable $th) {
-            Log::error($th->getMessage());
-            return response()->json([
-                'message' => 'Gagal mengupload foto wajah'
-            ], 500);
+        if ($request->hasFile('face_image_clock_in')) {
+            $file = $request->file('face_image_clock_in');
+            $faceImage = $request->user_id . '-clock-in' . $file->getClientOriginalName();
+            $putFile = StorageHelper::putFileAs('presences', $file, $faceImage);
+            if (!$putFile)
+                return response()->json([
+                    'message' => "Gagal mengupload foto wajah"
+                ], 500);
+            $clockIn->face_image_clock_in = $faceImage;
         }
         $clockIn->user_id = $request->user_id;
         $clockIn->schedule_time_in = Constant::$CLOCK_IN_TIME;
@@ -110,19 +118,17 @@ class PresenceController extends Controller
                 return response()->json([
                     'message' => "Jarak anda dengan lokasi kantor harus dibawah $maxDistance"
                 ], 500);
+            $presence->clock_out_distance = $distance;
         }
-        try {
-            if ($request->hasFile('face_image_clock_out')) {
-                $file = $request->file('face_image_clock_out');
-                $faceImage = $request->user_id . '-clock-out' . $file->getClientOriginalName();
-                $file->storeAs('presences', $faceImage);
-                $presence->face_image_clock_out = $faceImage;
-            }
-        } catch (\Throwable $th) {
-            Log::error($th->getMessage());
-            return response()->json([
-                'message' => 'Gagal mengupload foto wajah'
-            ], 500);
+        if ($request->hasFile('face_image_clock_out')) {
+            $file = $request->file('face_image_clock_out');
+            $faceImage = $request->user_id . '-clock-out' . $file->getClientOriginalName();
+            $putFile = StorageHelper::putFileAs('presences', $file, $faceImage);
+            if (!$putFile)
+                return response()->json([
+                    'message' => "Gagal mengupload foto wajah"
+                ], 500);
+            $presence->face_image_clock_out = $faceImage;
         }
         $presence->time_out = Carbon::now()->format('H:i');
         $presence->longitude_clock_out = $request->longitude_clock_out;

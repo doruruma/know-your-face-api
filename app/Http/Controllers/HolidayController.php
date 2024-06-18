@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use app\Helpers\Constant;
+use App\Helpers\Constant;
 use App\Http\Requests\HolidayFormRequest;
 use App\Http\Resources\HolidayCollection;
 use App\Http\Resources\HolidayResource;

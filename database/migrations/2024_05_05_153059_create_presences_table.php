@@ -20,8 +20,10 @@ return new class extends Migration
             $table->time('time_out')->nullable();
             $table->string('longitude_clock_in');
             $table->string('latitude_clock_in');
+            $table->string('clock_in_distance')->nullable();
             $table->string('longitude_clock_out')->nullable();
             $table->string('latitude_clock_out')->nullable();
+            $table->string('clock_out_distance')->nullable();
             $table->string('face_image_clock_in');
             $table->string('face_image_clock_out')->nullable();
             $table->integer('is_remote')->default(0);

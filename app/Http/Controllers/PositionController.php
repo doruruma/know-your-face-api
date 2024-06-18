@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use app\Helpers\Constant;
+use App\Helpers\Constant;
 use App\Http\Resources\PositionCollection;
 use App\Models\Position;
 use Illuminate\Http\Request;

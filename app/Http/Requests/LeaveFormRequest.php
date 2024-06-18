@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use app\Helpers\Constant;
+use App\Helpers\Constant;
 use Illuminate\Validation\Rule;
 
 class LeaveFormRequest extends CustomFormRequest

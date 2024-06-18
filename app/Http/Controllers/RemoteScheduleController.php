@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use app\Helpers\Constant;
+use App\Helpers\Constant;
 use App\Http\Requests\RemoteScheduleFormRequest;
 use App\Http\Resources\RemoteScheduleCollection;
 use App\Http\Resources\RemoteScheduleResource;

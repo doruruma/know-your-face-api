@@ -41,6 +41,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('leave-types', [LeaveTypeController::class, 'getAll']);
     // presences
     Route::get('presences', [PresenceController::class, 'getAll']);
+    Route::get('presence/{id}', [PresenceController::class, 'getById']);
     Route::post('presence/clock-in', [PresenceController::class, 'clockIn']);
     Route::post('presence/clock-out', [PresenceController::class, 'clockOut']);
     // positions
