@@ -19,9 +19,9 @@ class HolidayFormRequest extends CustomFormRequest
 
     public function messages()
     {
-        return [
+        return array_merge(parent::messages(), [
             'max' => ':attribute tidak boleh melebihi 255 karakter'
-        ];
+        ]);
     }
 
     public function attributes()

@@ -7,6 +7,7 @@ use App\Http\Requests\HolidayFormRequest;
 use App\Http\Resources\HolidayCollection;
 use App\Http\Resources\HolidayResource;
 use App\Models\Holiday;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -17,7 +18,19 @@ class HolidayController extends Controller
         $data = new Holiday;
         if ($request->has('search') && $request->search != '')
             $data = $data->where('name', 'like', "%$request->search%");
-        $data = $data->paginate(Constant::$PAGE_SIZE);
+        $data = $data->orderBy('date', 'DESC')->paginate(Constant::$PAGE_SIZE);
+        return new HolidayCollection($data);
+    }
+
+    public function getPerYear($year): HolidayCollection
+    {
+        $carbon = Carbon::create($year);
+        $firstOfMonth = $carbon->firstOfYear()->format('Y-m-d');
+        $lastOfMonth = $carbon->lastOfYear()->format('Y-m-d');
+        $data = Holiday::where([
+            ['date', '>=', $firstOfMonth],
+            ['date', '<=', $lastOfMonth]
+        ])->get();
         return new HolidayCollection($data);
     }
 
@@ -26,7 +39,7 @@ class HolidayController extends Controller
         $data = Holiday::find($id);
         if (!$data)
             return response()->json(null, 204);
-        return new ($data);
+        return (new HolidayResource($data))->response();
     }
 
     public function store(HolidayFormRequest $request): JsonResponse

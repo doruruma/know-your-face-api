@@ -25,6 +25,7 @@ Route::post('refresh-token', [UserController::class, 'refreshtoken']);
 Route::middleware('auth:api')->group(function () {
     // holiday
     Route::get('holidays', [HolidayController::class, 'getAll']);
+    Route::get('holidays/{year}', [HolidayController::class, 'getPerYear']);
     Route::get('holiday/{id}', [HolidayController::class, 'getById']);
     Route::post('holiday', [HolidayController::class, 'store']);
     Route::put('holiday/{id}', [HolidayController::class, 'update']);
