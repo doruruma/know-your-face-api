@@ -7,6 +7,7 @@ use App\Http\Requests\RemoteScheduleFormRequest;
 use App\Http\Resources\RemoteScheduleCollection;
 use App\Http\Resources\RemoteScheduleResource;
 use App\Models\RemoteSchedule;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -14,19 +15,32 @@ class RemoteScheduleController extends Controller
 {
     public function getAll(Request $request): RemoteScheduleCollection
     {
-        $data = new RemoteSchedule;
+        $data = RemoteSchedule::with('user:id,name,profile_image');
         if ($request->has('user_id') && $request->user_id != '')
             $data = $data->where('user_id', $request->user_id);
         $data = $data->paginate(Constant::$PAGE_SIZE);
         return new RemoteScheduleCollection($data);
     }
 
+    public function getPerYear($year): RemoteScheduleCollection
+    {
+        $carbon = Carbon::create($year);
+        $firstOfMonth = $carbon->firstOfYear()->format('Y-m-d');
+        $lastOfMonth = $carbon->lastOfYear()->format('Y-m-d');
+        $data = RemoteSchedule::with('user:id,name,profile_image')
+            ->where([
+                ['date', '>=', $firstOfMonth],
+                ['date', '<=', $lastOfMonth]
+            ])->get();
+        return new RemoteScheduleCollection($data);
+    }
+
     public function getById($id): JsonResponse
     {
-        $data = RemoteSchedule::find($id);
+        $data = RemoteSchedule::with('user:id,name')->find($id);
         if (!$data)
             return response()->json(null, 204);
-        return new ($data);
+        return (new RemoteScheduleResource($data))->response();
     }
 
     public function store(RemoteScheduleFormRequest $request)

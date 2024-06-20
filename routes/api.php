@@ -50,6 +50,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('positions/get-staff-no-paging', [PositionController::class, 'getStaffNoPaging']);
     // remote-schedules
     Route::get('remote-schedules', [RemoteScheduleController::class, 'getAll']);
+    Route::get('remote-schedules/{year}', [RemoteScheduleController::class, 'getPerYear']);
     Route::get('remote-schedule/{id}', [RemoteScheduleController::class, 'getById']);
     Route::post('remote-schedule', [RemoteScheduleController::class, 'store']);
     Route::put('remote-schedule/{id}', [RemoteScheduleController::class, 'update']);

@@ -22,7 +22,7 @@ class LeaveResource extends JsonResource
             'workstate_id' => $this->workstate_id,
             'workstate' => $this->whenLoaded('workstate'),
             'user_id' => $this->user_id,
-            'user' => $this->whenLoaded('user'),
+            'user' => new UserResource($this->whenLoaded('user')),
             'approver_user_id' => $this->approver_user_id,
             'approver' => $this->whenLoaded('approver'),
             'approved_date' => Util::formatDateTime($this->approved_date),

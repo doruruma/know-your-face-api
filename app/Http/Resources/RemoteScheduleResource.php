@@ -18,6 +18,7 @@ class RemoteScheduleResource extends JsonResource
         return [
             'id' => $this->id,
             'user_id' => $this->user_id,
+            'user' => new UserResource($this->whenLoaded('user')),
             'date' => $this->date,
             'formated_date' => Util::formatDateTime($this->date, 'd-m-Y'),
             'created_at' => Util::formatDateTime($this->created_at),

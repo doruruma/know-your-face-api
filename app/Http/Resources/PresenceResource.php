@@ -18,7 +18,7 @@ class PresenceResource extends JsonResource
         return [
             'id' => $this->id,
             'user_id' => $this->user_id,
-            'user' => $this->whenLoaded('user'),
+            'user' => new UserResource($this->whenLoaded('user')),
             'schedule_time_in' => $this->schedule_time_in,
             'schedule_time_out' => $this->schedule_time_out,
             'time_in' => Util::formatDateTime($this->time_in, 'H:i'),

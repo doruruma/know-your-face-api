@@ -18,7 +18,7 @@ class HolidayController extends Controller
         $data = new Holiday;
         if ($request->has('search') && $request->search != '')
             $data = $data->where('name', 'like', "%$request->search%");
-        $data = $data->orderBy('date', 'DESC')->paginate(Constant::$PAGE_SIZE);
+        $data = $data->paginate(Constant::$PAGE_SIZE);
         return new HolidayCollection($data);
     }
 
