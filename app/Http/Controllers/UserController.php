@@ -87,6 +87,15 @@ class UserController extends Controller
         return (new UserResource($data))->response();
     }
 
+    public function getCurrentUser(): JsonResponse
+    {
+        $currentUserId = Auth::user()->id;
+        $data = User::with('position')->find($currentUserId);
+        if (!$data)
+            return response()->json(null, 204);
+        return (new UserResource($data))->response();
+    }
+
     public function store(StoreUserFormRequest $request): JsonResponse
     {
         $user = new User;

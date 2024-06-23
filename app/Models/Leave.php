@@ -30,4 +30,9 @@ class Leave extends Model
     {
         return $this->belongsTo(LeaveType::class);
     }
+
+    public function workstate()
+    {
+        return $this->belongsTo(Workstate::class);
+    }
 }

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('leave_details', function (Blueprint $table) {
             $table->id();
+            $table->integer('workstate_id');
             $table->integer('leave_id');
             $table->date('leave_date');
             $table->timestamps();

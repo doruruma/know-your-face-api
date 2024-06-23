@@ -17,14 +17,15 @@ class LeaveResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'leave_details' => new LeaveDetailCollection($this->whenLoaded('leaveDetails')),
             'leave_type_id' => $this->leave_type_id,
-            'leave_type' => $this->whenLoaded('leaveType'),
+            'leave_type' => new LeaveTypeResource($this->whenLoaded('leaveType')),
             'workstate_id' => $this->workstate_id,
-            'workstate' => $this->whenLoaded('workstate'),
+            'workstate' => new WorkstateResource($this->whenLoaded('workstate')),
             'user_id' => $this->user_id,
             'user' => new UserResource($this->whenLoaded('user')),
             'approver_user_id' => $this->approver_user_id,
-            'approver' => $this->whenLoaded('approver'),
+            'approver' => new UserResource($this->whenLoaded('approver')),
             'approved_date' => Util::formatDateTime($this->approved_date),
             'attachment' => $this->attachment,
             'notes' => $this->notes,

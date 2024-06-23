@@ -18,18 +18,6 @@ class UserSeeder extends Seeder
         User::truncate();
         $arr = [
             [
-                'position_id' => 1,
-                'nik' => Util::generateNumber(16),
-                'name' => 'Admin',
-                'phone' => '085900829912',
-                'gender' => 'F',
-                'email' => 'admin@gmail.com',
-                'password' => Hash::make('P@ssw0rd?/'),
-                'profile_image' => 'default-profile.png',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
-            ],
-            [
                 'position_id' => 2,
                 'nik' => Util::generateNumber(16),
                 'name' => 'Management',
@@ -41,6 +29,18 @@ class UserSeeder extends Seeder
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
+            [
+                'position_id' => 3,
+                'nik' => Util::generateNumber(16),
+                'name' => 'Sephiroth',
+                'phone' => '085900829912',
+                'gender' => 'M',
+                'email' => 'sephiroth@gmail.com',
+                'password' => Hash::make('P@ssw0rd?/'),
+                'profile_image' => 'default-profile.png',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ],            
             [
                 'position_id' => 3,
                 'nik' => Util::generateNumber(16),

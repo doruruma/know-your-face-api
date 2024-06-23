@@ -2,9 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Helpers\Constant;
-use Illuminate\Validation\Rule;
-
 class LeaveFormRequest extends CustomFormRequest
 {
     /**
@@ -18,7 +15,7 @@ class LeaveFormRequest extends CustomFormRequest
             'leave_type_id' => 'required',
             'user_id' => 'required',            
             'attachment' => [
-                Rule::requiredIf($this->leave_type_id == Constant::$SICK_LEAVE_ID),
+                'present',
                 'file',
                 'mimes:png,jpg',
                 'max:4096'

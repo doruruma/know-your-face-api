@@ -23,6 +23,8 @@ class Util
 
     public static function formatDateTime($dateTime, $format = 'd-m-Y H:i')
     {
+        if(!$dateTime)
+            return null;
         return Carbon::parse($dateTime)->format($format);
     }
 

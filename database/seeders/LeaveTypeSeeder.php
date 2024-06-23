@@ -16,7 +16,7 @@ class LeaveTypeSeeder extends Seeder
         LeaveType::truncate();
         $arr = [
             [
-                'name' => 'Ijin',
+                'name' => 'Sakit',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],

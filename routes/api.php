@@ -32,6 +32,7 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('holiday/{id}', [HolidayController::class, 'delete']);
     // leaves
     Route::get('leaves', [LeaveController::class, 'getAll']);
+    Route::get('leave/{id}/requested', [LeaveController::class, 'getRequestedById']);
     Route::get('leave/{id}', [LeaveController::class, 'getById']);
     Route::post('leave', [LeaveController::class, 'store']);
     Route::put('leave/{id}', [LeaveController::class, 'update']);
@@ -60,6 +61,7 @@ Route::middleware('auth:api')->group(function () {
     Route::put('setting', [SettingController::class, 'update']);
     // users
     Route::get('users', [UserController::class, 'getAll']);
+    Route::get('user/current', [UserController::class, 'getCurrentUser']);
     Route::get('user/{id}', [UserController::class, 'getById']);
     Route::post('user', [UserController::class, 'store']);
     Route::put('user/{id}', [UserController::class, 'update']);

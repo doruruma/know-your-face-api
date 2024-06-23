@@ -23,8 +23,9 @@ class LeaveController extends Controller
     public function getAll(Request $request): LeaveCollection
     {
         $data = Leave::with(
-            'leaveType',
-            'workstate',
+            'leaveDetails',
+            'leaveType:id,name',
+            'workstate:id,name',
             'user',
             'approver'
         );
@@ -41,7 +42,7 @@ class LeaveController extends Controller
         return new LeaveCollection($data);
     }
 
-    public function getById(Request $request, $id): JsonResponse
+    public function getById($id): JsonResponse
     {
         $data = Leave::with(
             'leaveType',
@@ -49,6 +50,25 @@ class LeaveController extends Controller
             'user',
             'approver'
         )->find($id);
+        if (!$data)
+            return response()->json(null, 204);
+        return (new LeaveResource($data))->response();
+    }
+
+    public function getRequestedById(Request $request, $id): JsonResponse
+    {
+        $withs = [
+            'leaveType',
+            'workstate',
+            'user',
+            'approver'
+        ];
+        if ($request->has('detailed') && $request->detailed == true)
+            array_push($withs, 'leaveDetails');
+        $data = Leave::with($withs)->where([
+            ['id', $id],
+            ['workstate_id', Constant::$STATE_REQUESTED_ID]
+        ])->first();
         if (!$data)
             return response()->json(null, 204);
         return (new LeaveResource($data))->response();

@@ -20,5 +20,6 @@ class DatabaseSeeder extends Seeder
         $this->call(PresenceSeeder::class);
         $this->call(HolidaySeeder::class);
         $this->call(RemoteScheduleSeeder::class);
+        $this->call(LeaveSeeder::class);
     }
 }

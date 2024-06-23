@@ -12,6 +12,7 @@ class LeaveDetailHelper
         $arr = [];
         foreach ($dates as $date) {
             array_push($arr, [
+                'workstate_id' => Constant::$STATE_REQUESTED_ID,
                 'leave_id' => $leaveId,
                 'leave_date' => $date,
                 'created_at' => Carbon::now(),

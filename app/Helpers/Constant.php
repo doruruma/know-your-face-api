@@ -10,6 +10,8 @@ class Constant
     public static $USER_PROFILE_IMAGE = 'default-profile.png';
     // sick leave id
     public static $SICK_LEAVE_ID = 1;
+    // default leave id
+    public static $LEAVE_ID = 2;
     // workstate requested id
     public static $STATE_REQUESTED_ID = 1;
     // workstate approved id
