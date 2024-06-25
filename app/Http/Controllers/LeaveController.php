@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\Constant;
 use App\Helpers\LeaveDetailHelper;
+use App\Helpers\StorageHelper;
 use App\Http\Requests\ChangeLeaveStatusFormRequest;
 use App\Http\Requests\LeaveFormRequest;
 use App\Http\Resources\LeaveCollection;
@@ -22,6 +23,8 @@ class LeaveController extends Controller
 {
     public function getAll(Request $request): LeaveCollection
     {
+        $currentPositionId = Auth::user()->position_id;
+        $currentUserId = Auth::user()->id;
         $data = Leave::with(
             'leaveDetails',
             'leaveType:id,name',
@@ -29,13 +32,18 @@ class LeaveController extends Controller
             'user',
             'approver'
         );
+        if ($currentPositionId != Constant::$MANAGEMENT_POSITION_ID)
+            $data = $data->where('user_id', $currentUserId);
         if ($request->has('search') && $request->search != '')
             $data = $data->where('notes', 'like', "$request->search");
         if ($request->has('leave_type_id') && $request->leave_type_id != '')
             $data = $data->where('leave_type_id', $request->leave_type_id);
         if ($request->has('workstate_id') && $request->workstate_id != '')
             $data = $data->where('workstate_id', $request->workstate_id);
-        if ($request->has('user_id') && $request->user_id != '')
+        if (
+            $currentPositionId == Constant::$MANAGEMENT_POSITION_ID &&
+            $request->has('user_id') && $request->user_id != ''
+        )
             $data = $data->where('user_id', $request->user_id);
         $data = $data->orderBy('created_at', 'DESC')
             ->paginate(Constant::$PAGE_SIZE);
@@ -82,15 +90,12 @@ class LeaveController extends Controller
             $leave->leave_type_id = $request->leave_type_id;
             $leave->user_id = $request->user_id;
             $leave->notes = $request->notes;
-            try {
-                if ($request->hasFile('attachment')) {
-                    $file = $request->file('attachment');
-                    $attachment = date('d-m-y H:i') . "-user-$request->user_id" . $file->getClientOriginalName();
-                    $file->storeAs('leave-attachments', $attachment);
+            if ($request->hasFile('attachment')) {
+                $file = $request->file('attachment');
+                $attachment = date('d-m-y H:i') . "-user-$request->user_id" . $file->getClientOriginalName();
+                $putFile = StorageHelper::putFileAs('leave-attachments', $file, $attachment);
+                if ($putFile)
                     $leave->attachment = $attachment;
-                }
-            } catch (\Throwable $th) {
-                Log::error($th->getMessage());
             }
             $leave->save();
             // insert leave_details
@@ -146,27 +151,34 @@ class LeaveController extends Controller
             return response()->json([
                 'message' => 'Data tidak ditemukan'
             ], 500);
-        $leave->workstate_id = Constant::$STATE_APPROVED_ID;
-        $leave->approver_user_id = Auth::user()->id;
-        $leave->approved_date = Carbon::now();
-        $leave->approval_notes = $request->approval_notes;
-        $leave->save();
-        return (new LeaveResource($leave))->response();
-    }
-
-    public function reject(ChangeLeaveStatusFormRequest $request, $id): JsonResponse
-    {
-        $leave = Leave::find($id);
-        if (!$leave)
-            return response()->json([
-                'message' => 'Data tidak ditemukan'
-            ], 500);
-        $leave->workstate_id = Constant::$STATE_REJECTED_ID;
-        $leave->approver_user_id = Auth::user()->id;
-        $leave->approved_date = Carbon::now();
-        $leave->approval_notes = $request->approval_notes;
-        $leave->save();
-        return (new LeaveResource($leave))->response();
+        $data = DB::transaction(function () use ($request, $leave) {
+            $ids = collect($request->details)->pluck('id');
+            $strCases = '';
+            $details = json_decode(json_encode($request->details));
+            $isApprovedExist = current(array_filter($details, function ($detail) {
+                return $detail->workstate_id === Constant::$STATE_APPROVED_ID;
+            }));
+            $workstateId = $isApprovedExist ? Constant::$STATE_APPROVED_ID : Constant::$STATE_REJECTED_ID;
+            foreach ($details as $detail) {
+                $strCases .= 'WHEN id = ' . $detail->id . ' THEN ' . $detail->workstate_id . "\n";
+            }
+            $leave->workstate_id = $workstateId;
+            $leave->approver_user_id = Auth::user()->id;
+            $leave->approved_date = Carbon::now();
+            $leave->approval_notes = $request->approval_notes;
+            $leave->save();
+            // update leave_details                        
+            LeaveDetail::whereIn('id', $ids)->update([
+                'workstate_id' => DB::raw('CASE
+                    ' . $strCases . '
+                    ELSE ' . Constant::$STATE_REQUESTED_ID . '
+                    END
+                '),
+                'updated_at' => Carbon::now()
+            ]);
+            return $leave;
+        });
+        return (new LeaveResource($data))->response();
     }
 
     public function cancel($id): JsonResponse
@@ -181,8 +193,19 @@ class LeaveController extends Controller
             return response()->json([
                 'message' => 'Data tidak ditemukan'
             ], 500);
-        $leave->workstate_id = Constant::$STATE_CANCELLED_ID;
-        $leave->save();
-        return (new LeaveResource($leave))->response();
+        $result = DB::transaction(function () use ($id, $leave) {
+            $leave->workstate_id = Constant::$STATE_CANCELLED_ID;
+            $leave->save();
+            // update leave_details
+            $leaveDetailIds = LeaveDetail::select('id')
+                ->where('leave_id', $id)
+                ->get()
+                ->pluck('id');
+            LeaveDetail::whereIn('id', $leaveDetailIds)->update([
+                'workstate_id' => Constant::$STATE_CANCELLED_ID
+            ]);
+            return $leave;
+        });
+        return (new LeaveResource($result))->response();
     }
 }

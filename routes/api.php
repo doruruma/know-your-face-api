@@ -36,8 +36,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('leave/{id}', [LeaveController::class, 'getById']);
     Route::post('leave', [LeaveController::class, 'store']);
     Route::put('leave/{id}', [LeaveController::class, 'update']);
-    Route::put('leave/approve/{id}', [LeaveController::class, 'approve']);
-    Route::put('leave/reject/{id}', [LeaveController::class, 'reject']);
+    Route::put('leave/approve/{id}', [LeaveController::class, 'approve']);    
     Route::put('leave/cancel/{id}', [LeaveController::class, 'cancel']);
     // leave-types
     Route::get('leave-types', [LeaveTypeController::class, 'getAll']);

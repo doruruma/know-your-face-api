@@ -24,4 +24,6 @@ class Constant
     public static $CLOCK_IN_TIME = '08:00';
     // default clock out
     public static $CLOCK_OUT_TIME = '17:00';
+    
+    public static $MANAGEMENT_POSITION_ID = 2;
 }
