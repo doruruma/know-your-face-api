@@ -19,7 +19,7 @@ class HolidayResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'date' => $this->date,
-            'formated_date' => Util::formatDateTime($this->date, 'd-m-Y'),
+            'formatted_date' => Util::formatDateTime($this->date, 'd-m-Y'),
             'created_at' => Util::formatDateTime($this->created_at),
             'updated_at' => Util::formatDateTime($this->updated_at)
         ];

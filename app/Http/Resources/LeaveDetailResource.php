@@ -20,7 +20,8 @@ class LeaveDetailResource extends JsonResource
             'workstate_id' => $this->workstate_id,
             'workstate' => new WorkstateResource($this->whenLoaded('workstate')),
             'leave_id' => $this->leave_id,
-            'leave_date' => Util::formatDateTime($this->leave_date, 'd-m-Y'),
+            'leave_date' => $this->leave_date,
+            'formatted_leave_date' => Util::formatDateTime($this->leave_date, 'd-m-Y'),
             'created_at' => Util::formatDateTime($this->created_at),
             'updated_at' => Util::formatDateTime($this->updated_at)
         ];

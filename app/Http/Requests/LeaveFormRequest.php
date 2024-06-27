@@ -18,7 +18,7 @@ class LeaveFormRequest extends CustomFormRequest
             'leave_type_id' => 'required',
             'user_id' => 'required',
             'attachment' => [
-                Rule::requiredIf($this->leave_type_id == Constant::$SICK_LEAVE_ID),
+                Rule::requiredIf($this->leave_type_id == Constant::$SICK_LEAVE_ID && $this->route('id', 0) == 0),
                 'file',
                 'mimes:png,jpg',
                 'max:4096'

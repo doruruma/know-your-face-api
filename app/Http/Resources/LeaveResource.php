@@ -27,7 +27,7 @@ class LeaveResource extends JsonResource
             'approver_user_id' => $this->approver_user_id,
             'approver' => new UserResource($this->whenLoaded('approver')),
             'approved_date' => Util::formatDateTime($this->approved_date),
-            'attachment' => $this->attachment,
+            'attachment' => $this->attachment ? "storage/leave-attachments/$this->attachment" : null,
             'notes' => $this->notes,
             'created_at' => Util::formatDateTime($this->created_at),
             'updated_at' => Util::formatDateTime($this->updated_at)

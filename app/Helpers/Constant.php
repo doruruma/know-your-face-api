@@ -8,6 +8,8 @@ class Constant
     public static $PAGE_SIZE = 15;
     // default user profile
     public static $USER_PROFILE_IMAGE = 'default-profile.png';
+    // default attachment
+    public static $LEAVE_ATTACHMENT_IMAGE = 'default-attachment.png';
     // sick leave id
     public static $SICK_LEAVE_ID = 1;
     // default leave id

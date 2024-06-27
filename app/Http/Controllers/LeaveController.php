@@ -12,12 +12,14 @@ use App\Http\Resources\LeaveResource;
 use App\Models\Leave;
 use App\Models\LeaveDetail;
 use Carbon\Carbon;
+use Faker\Core\Uuid;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class LeaveController extends Controller
 {
@@ -50,14 +52,17 @@ class LeaveController extends Controller
         return new LeaveCollection($data);
     }
 
-    public function getById($id): JsonResponse
+    public function getById(Request $request, $id): JsonResponse
     {
-        $data = Leave::with(
+        $withs = [
             'leaveType',
             'workstate',
             'user',
             'approver'
-        )->find($id);
+        ];
+        if ($request->has('detailed') && $request->detailed == true)
+            array_push($withs, 'leaveDetails');
+        $data = Leave::with($withs)->find($id);
         if (!$data)
             return response()->json(null, 204);
         return (new LeaveResource($data))->response();
@@ -90,9 +95,10 @@ class LeaveController extends Controller
             $leave->leave_type_id = $request->leave_type_id;
             $leave->user_id = $request->user_id;
             $leave->notes = $request->notes;
+            $leave->attachment = Constant::$LEAVE_ATTACHMENT_IMAGE;
             if ($request->hasFile('attachment')) {
                 $file = $request->file('attachment');
-                $attachment = date('d-m-y H:i') . "-user-$request->user_id" . $file->getClientOriginalName();
+                $attachment = Str::uuid() . "-user-$request->user_id" . $file->getClientOriginalName();
                 $putFile = StorageHelper::putFileAs('leave-attachments', $file, $attachment);
                 if ($putFile)
                     $leave->attachment = $attachment;
@@ -123,17 +129,14 @@ class LeaveController extends Controller
             ], 500);
         $data = DB::transaction(function () use ($request, $leave) {
             $leave->notes = $request->notes;
-            try {
-                if ($request->hasFile('attachment')) {
-                    if ($leave->attachment)
-                        Storage::delete("leave-attachments/$leave->attachment");
-                    $file = $request->file('attachment');
-                    $attachment = date('d-m-y H:i') . "-user-$request->user_id" . $file->getClientOriginalName();
-                    $file->storeAs('leave-attachments', $attachment);
+            if ($request->hasFile('attachment')) {
+                if ($leave->attachment != Constant::$LEAVE_ATTACHMENT_IMAGE)
+                    Storage::delete("leave-attachments/$leave->attachment");
+                $file = $request->file('attachment');
+                $attachment = Str::uuid() . "-user-$request->user_id" . $file->getClientOriginalName();
+                $putFile = StorageHelper::putFileAs('leave-attachments', $file, $attachment);
+                if ($putFile)
                     $leave->attachment = $attachment;
-                }
-            } catch (\Throwable $th) {
-                Log::error($th->getMessage());
             }
             $leave->save();
             // insert leave_details
