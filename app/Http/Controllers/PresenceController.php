@@ -17,16 +17,23 @@ use App\Models\Presence;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PresenceController extends Controller
 {
     public function getAll(Request $request): PresenceCollection
     {
+        $currentUser = Auth::user();
         $data = Presence::with('user:id,name');
-        if ($request->has('user_id') && $request->user_id != '')
-            $data = $data->where('user_id', $request->user_id);
+        if ($currentUser->position_id != Constant::$MANAGEMENT_POSITION_ID)
+            $data = $data->where('user_id', $currentUser->id);
         if ($request->has('is_remote') && $request->is_remote != '')
             $data = $data->where('is_remote', $request->is_remote);
+        if (
+            $currentUser->position_id == Constant::$MANAGEMENT_POSITION_ID &&
+            $request->has('user_id') && $request->user_id != ''
+        )
+            $data = $data->where('user_id', $request->user_id);
         if (
             ($request->has('start_date') && $request->start_date != '') &&
             ($request->has('end_date') && $request->end_date != '')

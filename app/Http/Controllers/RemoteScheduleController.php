@@ -10,13 +10,20 @@ use App\Models\RemoteSchedule;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class RemoteScheduleController extends Controller
 {
     public function getAll(Request $request): RemoteScheduleCollection
     {
+        $currentUser = Auth::user();
         $data = RemoteSchedule::with('user:id,name,profile_image');
-        if ($request->has('user_id') && $request->user_id != '')
+        if ($currentUser->position_id != Constant::$MANAGEMENT_POSITION_ID)
+            $data = $data->where('user_id', $currentUser->id);
+        if (
+            $currentUser->position_id == Constant::$MANAGEMENT_POSITION_ID &&
+            $request->has('user_id') && $request->user_id != ''
+        )
             $data = $data->where('user_id', $request->user_id);
         $data = $data->paginate(Constant::$PAGE_SIZE);
         return new RemoteScheduleCollection($data);

@@ -28,5 +28,10 @@ class RemoteScheduleSeeder extends Seeder
         $db->user_id = 3;
         $db->date = '2024-06-22';
         $db->save();
+
+        $db = new RemoteSchedule;
+        $db->user_id = 4;
+        $db->date = '2024-06-29';
+        $db->save();
     }
 }

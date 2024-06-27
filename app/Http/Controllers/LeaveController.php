@@ -12,12 +12,11 @@ use App\Http\Resources\LeaveResource;
 use App\Models\Leave;
 use App\Models\LeaveDetail;
 use Carbon\Carbon;
-use Faker\Core\Uuid;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -25,8 +24,7 @@ class LeaveController extends Controller
 {
     public function getAll(Request $request): LeaveCollection
     {
-        $currentPositionId = Auth::user()->position_id;
-        $currentUserId = Auth::user()->id;
+        $currentUser = Auth::user();
         $data = Leave::with(
             'leaveDetails',
             'leaveType:id,name',
@@ -34,8 +32,8 @@ class LeaveController extends Controller
             'user',
             'approver'
         );
-        if ($currentPositionId != Constant::$MANAGEMENT_POSITION_ID)
-            $data = $data->where('user_id', $currentUserId);
+        if ($currentUser->position_id != Constant::$MANAGEMENT_POSITION_ID)
+            $data = $data->where('user_id', $currentUser->id);
         if ($request->has('search') && $request->search != '')
             $data = $data->where('notes', 'like', "$request->search");
         if ($request->has('leave_type_id') && $request->leave_type_id != '')
@@ -43,7 +41,7 @@ class LeaveController extends Controller
         if ($request->has('workstate_id') && $request->workstate_id != '')
             $data = $data->where('workstate_id', $request->workstate_id);
         if (
-            $currentPositionId == Constant::$MANAGEMENT_POSITION_ID &&
+            $currentUser->position_id == Constant::$MANAGEMENT_POSITION_ID &&
             $request->has('user_id') && $request->user_id != ''
         )
             $data = $data->where('user_id', $request->user_id);
@@ -89,6 +87,25 @@ class LeaveController extends Controller
 
     public function store(LeaveFormRequest $request)
     {
+        $storedLeaves = Leave::select('id', 'workstate_id')
+            ->where('user_id', $request->user_id)
+            ->orWhere(function (Builder $query) {
+                $query->where('workstate_id', Constant::$STATE_REQUESTED_ID)
+                    ->orWhere('workstate_id', Constant::$STATE_APPROVED_ID);
+            })
+            ->get();        
+        $whereDates = [];
+        foreach ($request->dates as $date) {
+            array_push($whereDates, ['leave_date', $date]);
+        }
+        $storedLeaveDetail = LeaveDetail::select('leave_id', 'leave_date')
+            ->whereIn('leave_id', $storedLeaves->pluck('id'))
+            ->where($whereDates)
+            ->first();
+        if ($storedLeaveDetail)
+            return response()->json([
+                'message' => 'Anda sudah mengajukan cuti di tanggal yang sama'
+            ], 500);
         $data = DB::transaction(function () use ($request) {
             $leave = new Leave;
             $leave->workstate_id = Constant::$STATE_REQUESTED_ID;
