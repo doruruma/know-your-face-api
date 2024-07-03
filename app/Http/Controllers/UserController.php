@@ -79,6 +79,14 @@ class UserController extends Controller
         return new UserCollection($data);
     }
 
+    public function getCount(): JsonResponse
+    {
+        $count = User::all()->count();
+        return response()->json([
+            'data' => ['count' => $count - 1]
+        ]);
+    }
+
     public function getById($id): JsonResponse
     {
         $data = User::with('position')->find($id);

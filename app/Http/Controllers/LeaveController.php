@@ -66,6 +66,55 @@ class LeaveController extends Controller
         return (new LeaveResource($data))->response();
     }
 
+    public function getTodayRequestedCount(): JsonResponse
+    {
+        $count = Leave::select('id')
+            ->where([
+                ['workstate_id', Constant::$STATE_REQUESTED_ID],
+                ['created_at', '>=', Carbon::now()->startOfDay()],
+                ['created_at', '<=', Carbon::now()->endOfDay()],
+            ])
+            ->get()
+            ->count();
+        return response()->json([
+            'data' => ['count' => $count]
+        ]);
+    }
+
+    public function getTodayApprovedSickCount(): JsonResponse
+    {
+        $count = LeaveDetail::select('id')
+            ->whereHas('leave', function (Builder $query) {
+                $query->where('leave_type_id', Constant::$SICK_LEAVE_ID);
+            })
+            ->where([
+                ['workstate_id', Constant::$STATE_APPROVED_ID],
+                ['leave_date', Carbon::now()->format('Y-m-d')],
+            ])
+            ->get()
+            ->count();
+        return response()->json([
+            'data' => ['count' => $count]
+        ]);
+    }
+
+    public function getTodayApprovedLeaveCount(): JsonResponse
+    {
+        $count = LeaveDetail::select('id')
+            ->whereHas('leave', function (Builder $query) {
+                $query->where('leave_type_id', Constant::$LEAVE_ID);
+            })
+            ->where([
+                ['workstate_id', Constant::$STATE_APPROVED_ID],
+                ['leave_date', Carbon::now()->format('Y-m-d')],
+            ])
+            ->get()
+            ->count();
+        return response()->json([
+            'data' => ['count' => $count]
+        ]);
+    }
+
     public function getRequestedById(Request $request, $id): JsonResponse
     {
         $withs = [
@@ -93,7 +142,7 @@ class LeaveController extends Controller
                 $query->where('workstate_id', Constant::$STATE_REQUESTED_ID)
                     ->orWhere('workstate_id', Constant::$STATE_APPROVED_ID);
             })
-            ->get();        
+            ->get();
         $whereDates = [];
         foreach ($request->dates as $date) {
             array_push($whereDates, ['leave_date', $date]);

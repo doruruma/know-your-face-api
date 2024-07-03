@@ -44,6 +44,17 @@ class PresenceController extends Controller
         return new PresenceCollection($data);
     }
 
+    public function getTodayCount(): JsonResponse
+    {
+        $count = Presence::select('id')->where([
+            ['created_at', '>=', Carbon::now()->startOfDay()],
+            ['created_at', '<=', Carbon::now()->endOfDay()],
+        ])->get()->count();
+        return response()->json([
+            'data' => ['count' => $count]
+        ]);
+    }
+
     public function getById($id): JsonResponse
     {
         $data = Presence::with('user:id,name')->find($id);
