@@ -18,6 +18,8 @@ class PresenceResource extends JsonResource
         return [
             'id' => $this->id,
             'user_id' => $this->user_id,
+            'is_late' => $this->is_late,
+            'is_late_label' => $this->is_late == 1 ? 'Terlambat' : 'Tepat Waktu',
             'user' => new UserResource($this->whenLoaded('user')),
             'schedule_time_in' => $this->schedule_time_in,
             'schedule_time_out' => $this->schedule_time_out,

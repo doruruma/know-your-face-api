@@ -236,7 +236,7 @@ class LeaveController extends Controller
             $leave->approved_date = Carbon::now();
             $leave->approval_notes = $request->approval_notes;
             $leave->save();
-            // update leave_details                        
+            // update leave_details
             LeaveDetail::whereIn('id', $ids)->update([
                 'workstate_id' => DB::raw('CASE
                     ' . $strCases . '

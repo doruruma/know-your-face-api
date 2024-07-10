@@ -120,7 +120,7 @@ class UserController extends Controller
         $user->gender = $request->gender;
         $user->email = $request->email;
         $user->password = Hash::make($request->password);
-        $faceImage = null;        
+        $faceImage = null;
         $user->profile_image = Constant::$USER_PROFILE_IMAGE;;
         if ($request->hasFile('profile_image')) {
             $file = $request->file('profile_image');
@@ -171,7 +171,7 @@ class UserController extends Controller
                 $user->profile_image = $profileImage;
         }
         if ($request->hasFile('face_image')) {
-            if ($faceImage)
+            if ($faceImage != Constant::$USER_PROFILE_IMAGE)
                 StorageHelper::deleteFile("face-images/$faceImage");
             $file = $request->file('face_image');
             $faceImage = $user->nik . "-" . str_replace(' ', '-', $user->name) . $file->getClientOriginalName();

@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('presences', function (Blueprint $table) {
             $table->id();
             $table->integer('user_id');
+            $table->integer('is_late');
             $table->time('schedule_time_in');
             $table->time('schedule_time_out');
             $table->time('time_in');

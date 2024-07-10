@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\Constant;
 use App\Helpers\HolidayHelper;
+use App\Helpers\LeaveDetailHelper;
 use App\Helpers\PresenceHelper;
 use App\Helpers\RemoteScheduleHelper;
 use App\Helpers\SettingHelper;
@@ -29,6 +30,8 @@ class PresenceController extends Controller
             $data = $data->where('user_id', $currentUser->id);
         if ($request->has('is_remote') && $request->is_remote != '')
             $data = $data->where('is_remote', $request->is_remote);
+        if ($request->has('is_late') && $request->is_late != '')
+            $data = $data->where('is_late', $request->is_late);
         if (
             $currentUser->position_id == Constant::$MANAGEMENT_POSITION_ID &&
             $request->has('user_id') && $request->user_id != ''
@@ -63,6 +66,32 @@ class PresenceController extends Controller
         return (new PresenceResource($data))->response();
     }
 
+    public function checkStatus(): JsonResponse
+    {
+        $currentUser = Auth::user();
+        $isTodayHoliday = HolidayHelper::isTodayHoliday();
+        if ($isTodayHoliday || Util::isWeekend())
+            return response()->json([
+                'message' => 'Tidak bisa absen pada hari libur'
+            ], 500);
+        $isTodayLeave = LeaveDetailHelper::isTodayLeave($currentUser->id);
+        if ($isTodayLeave)
+            return response()->json([
+                'message' => 'Hari ini anda sedang cuti, tidak perlu absen'
+            ], 500);
+        $state = 0;
+        $todayPresence = PresenceHelper::getTodayPresence($currentUser->id);
+        if ($todayPresence) {
+            if ($todayPresence->time_out == null)
+                $state = 1;
+            else
+                $state = 2;
+        }
+        return response()->json([
+            'message' => $state
+        ]);
+    }
+
     public function clockIn(ClockInFormRequest $request): JsonResponse
     {
         $isTodayHoliday = HolidayHelper::isTodayHoliday();
@@ -70,7 +99,7 @@ class PresenceController extends Controller
             return response()->json([
                 'message' => 'Tidak bisa absen pada hari libur'
             ], 500);
-        if (PresenceHelper::isUserClockInToday($request->user_id))
+        if (PresenceHelper::getTodayPresence($request->user_id))
             return response()->json([
                 'message' => 'Anda sudah absen hari ini'
             ], 500);
@@ -102,9 +131,13 @@ class PresenceController extends Controller
             $clockIn->face_image_clock_in = $faceImage;
         }
         $clockIn->user_id = $request->user_id;
+        $clockInSchedule = date('Y-m-d H:i', strtotime(date('Y-m-d') . " " . Constant::$CLOCK_IN_TIME));
+        $actualClockIn = Carbon::now()->format('Y-m-d H:i');
+        $isLate = $clockInSchedule < $actualClockIn ? 1 : 0;
+        $clockIn->is_late = $isLate;
         $clockIn->schedule_time_in = Constant::$CLOCK_IN_TIME;
         $clockIn->schedule_time_out = Constant::$CLOCK_OUT_TIME;
-        $clockIn->time_in = Carbon::now()->format('H:i');
+        $clockIn->time_in = Carbon::now()->format('H:i');;
         $clockIn->longitude_clock_in = $request->longitude_clock_in;
         $clockIn->latitude_clock_in = $request->latitude_clock_in;
         $clockIn->is_remote = $isTodayRemote ? 1 : 0;

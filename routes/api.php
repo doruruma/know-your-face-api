@@ -46,7 +46,8 @@ Route::middleware('auth:api')->group(function () {
     // presences
     Route::get('presences', [PresenceController::class, 'getAll']);
     Route::get('presence/get-today-count', [PresenceController::class, 'getTodayCount']);
-    Route::get('presence/{id}', [PresenceController::class, 'getById']);
+    Route::get('presence/check-status', [PresenceController::class, 'checkStatus']);
+    Route::get('presence/{id}', [PresenceController::class, 'getById']);    
     Route::post('presence/clock-in', [PresenceController::class, 'clockIn']);
     Route::post('presence/clock-out', [PresenceController::class, 'clockOut']);
     // positions

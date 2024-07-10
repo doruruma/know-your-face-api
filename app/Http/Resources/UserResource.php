@@ -32,7 +32,7 @@ class UserResource extends JsonResource
             'formatted_gender' => $gender,
             'email' => $this->email,
             'profile_image' => "storage/profile-images/$this->profile_image",
-            'face_image' => $this->face_image,
+            'face_image' => "storage/face-images/$this->face_image",
             'created_at' => Util::formatDateTime($this->created_at),
             'updated_at' => Util::formatDateTime($this->updated_at)
         ];

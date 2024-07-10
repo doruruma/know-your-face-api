@@ -26,6 +26,7 @@ class UserSeeder extends Seeder
                 'email' => 'management@gmail.com',
                 'password' => Hash::make('P@ssw0rd?/'),
                 'profile_image' => 'default-profile.png',
+                'face_image' => 'default-profile.png',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
@@ -38,6 +39,7 @@ class UserSeeder extends Seeder
                 'email' => 'sephiroth@gmail.com',
                 'password' => Hash::make('P@ssw0rd?/'),
                 'profile_image' => 'default-profile.png',
+                'face_image' => 'default-profile.png',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],            
@@ -50,6 +52,7 @@ class UserSeeder extends Seeder
                 'email' => 'john@gmail.com',
                 'password' => Hash::make('P@ssw0rd?/'),
                 'profile_image' => 'default-profile.png',
+                'face_image' => 'default-profile.png',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ],
@@ -62,6 +65,7 @@ class UserSeeder extends Seeder
                 'email' => 'jane@gmail.com',
                 'password' => Hash::make('P@ssw0rd?/'),
                 'profile_image' => 'default-profile.png',
+                'face_image' => 'default-profile.png',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ]
