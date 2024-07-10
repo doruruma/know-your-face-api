@@ -50,6 +50,26 @@ class LeaveController extends Controller
         return new LeaveCollection($data);
     }
 
+    public function getPerYear($year): LeaveCollection
+    {
+        $carbon = Carbon::create($year);
+        $firstOfMonth = $carbon->firstOfYear()->format('Y-m-d');
+        $lastOfMonth = $carbon->lastOfYear()->format('Y-m-d');
+        $data = Leave::with(
+            'leaveDetails',
+            'user',
+        )->whereHas('leaveDetails', function (Builder $query) use ($firstOfMonth, $lastOfMonth) {
+            $query->where([
+                ['workstate_id', Constant::$STATE_APPROVED_ID],
+                ['leave_date', '>=', $firstOfMonth],
+                ['leave_date', '<=', $lastOfMonth]
+            ]);
+        })->where([
+            ['workstate_id', Constant::$STATE_APPROVED_ID]
+        ])->get();
+        return new LeaveCollection($data);
+    }
+
     public function getById(Request $request, $id): JsonResponse
     {
         $withs = [

@@ -24,7 +24,7 @@ class UserResource extends JsonResource
         return [
             'id' => $this->id,
             'position_id' => $this->position_id,
-            'position' => $this->whenLoaded('position'),
+            'position' => new PositionResource($this->whenLoaded('position')),
             'nik' => $this->nik,
             'name' => $this->name,
             'phone' => $this->phone,

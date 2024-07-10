@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\LeaveController;
+use App\Http\Controllers\LeaveDetailController;
 use App\Http\Controllers\LeaveTypeController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\PresenceController;
@@ -32,8 +33,9 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('holiday/{id}', [HolidayController::class, 'delete']);
     // leaves
     Route::get('leaves', [LeaveController::class, 'getAll']);
+    Route::get('leaves/{year}', [LeaveController::class, 'getPerYear']);
     Route::get('leave/get-today-requested-count', [LeaveController::class, 'getTodayRequestedCount']);
-    Route::get('leave/get-today-approved-sick-count', [LeaveController::class, 'getTodayApprovedSickCount']);    
+    Route::get('leave/get-today-approved-sick-count', [LeaveController::class, 'getTodayApprovedSickCount']);
     Route::get('leave/get-today-approved-leave-count', [LeaveController::class, 'getTodayApprovedLeaveCount']);
     Route::get('leave/{id}/requested', [LeaveController::class, 'getRequestedById']);
     Route::get('leave/{id}', [LeaveController::class, 'getById']);
@@ -45,9 +47,10 @@ Route::middleware('auth:api')->group(function () {
     Route::get('leave-types', [LeaveTypeController::class, 'getAll']);
     // presences
     Route::get('presences', [PresenceController::class, 'getAll']);
+    Route::get('presences/export/{startDate}/{endDate}', [PresenceController::class, 'export']);
     Route::get('presence/get-today-count', [PresenceController::class, 'getTodayCount']);
     Route::get('presence/check-status', [PresenceController::class, 'checkStatus']);
-    Route::get('presence/{id}', [PresenceController::class, 'getById']);    
+    Route::get('presence/{id}', [PresenceController::class, 'getById']);
     Route::post('presence/clock-in', [PresenceController::class, 'clockIn']);
     Route::post('presence/clock-out', [PresenceController::class, 'clockOut']);
     // positions

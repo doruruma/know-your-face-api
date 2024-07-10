@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\PresenceExport;
 use App\Helpers\Constant;
 use App\Helpers\HolidayHelper;
 use App\Helpers\LeaveDetailHelper;
@@ -19,6 +20,7 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PresenceController extends Controller
 {
@@ -45,6 +47,12 @@ class PresenceController extends Controller
                 ->whereDate('created_at', '<=', $request->end_date);
         $data = $data->orderBy('created_at', 'DESC')->paginate(Constant::$PAGE_SIZE);
         return new PresenceCollection($data);
+    }
+
+    public function export($startDate, $endDate)
+    {
+        $fileName = "exported-presence-" . Carbon::now()->format('d-m-Y') . ".xlsx";
+        return Excel::download(new PresenceExport($startDate, $endDate), $fileName);
     }
 
     public function getTodayCount(): JsonResponse
