@@ -33,6 +33,7 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('holiday/{id}', [HolidayController::class, 'delete']);
     // leaves
     Route::get('leaves', [LeaveController::class, 'getAll']);
+    Route::get('leaves/export/{startDate}/{endDate}', [LeaveController::class, 'export']);
     Route::get('leaves/{year}', [LeaveController::class, 'getPerYear']);
     Route::get('leave/get-today-requested-count', [LeaveController::class, 'getTodayRequestedCount']);
     Route::get('leave/get-today-approved-sick-count', [LeaveController::class, 'getTodayApprovedSickCount']);

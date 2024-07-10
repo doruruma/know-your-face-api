@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\LeaveExport;
 use App\Helpers\Constant;
 use App\Helpers\LeaveDetailHelper;
 use App\Helpers\StorageHelper;
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
 
 class LeaveController extends Controller
 {
@@ -48,6 +50,12 @@ class LeaveController extends Controller
         $data = $data->orderBy('created_at', 'DESC')
             ->paginate(Constant::$PAGE_SIZE);
         return new LeaveCollection($data);
+    }
+
+    public function export($startDate, $endDate)
+    {
+        $fileName = "exported-leave-" . Carbon::now()->format('d-m-Y') . ".xlsx";
+        return Excel::download(new LeaveExport($startDate, $endDate), $fileName);
     }
 
     public function getPerYear($year): LeaveCollection

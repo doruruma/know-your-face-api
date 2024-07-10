@@ -15,4 +15,9 @@ class LeaveDetail extends Model
     {
         return $this->belongsTo(Leave::class);
     }
+
+    public function workstate()
+    {
+        return $this->belongsTo(Workstate::class);
+    }
 }
