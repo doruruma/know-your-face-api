@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Helpers\SettingHelper;
 use App\Http\Requests\SettingFormRequest;
 use App\Http\Resources\SettingResource;
-use App\Models\Setting;
 use Illuminate\Http\JsonResponse;
 
 class SettingController extends Controller

@@ -1,0 +1,179 @@
+@startuml
+
+class User {
+    +id: integer
+    +position_id: integer
+    +nik: string
+    +name: string
+    +phone: string
+    +gender: string
+    +email: string
+    +password: string
+    +profile_image: string
+    +face_image: string
+    +remember_token: string
+    +created_at: datetime
+    +updated_at: datetime
+    +deleted_at: datetime
+    +login(request: LoginFormRequest): JsonResponse
+    +refreshToken(request: RefreshTokenFormRequest): JsonResponse
+    +getAll(request: Request): UserCollection
+    +getCount(): JsonResponse
+    +getById(id: int): JsonResponse
+    +getCurrentUser(): JsonResponse
+    +store(request: StoreUserFormRequest): JsonResponse
+    +update(request: UpdateUserFormRequest, id: int): JsonResponse
+    +delete(id: int): JsonResponse
+    +updatePassword(request: UpdatePasswordFormRequest, id: int): JsonResponse
+    +updateProfile(request: UpdateProfileFormRequest, id: int): JsonResponse
+}
+
+class Position {
+    + id: integer
+    + name: string
+    + description: string
+    + created_at: datetime
+    + updated_at: datetime
+    + deleted_at: datetime
+    +getStaff(request: Request): PositionCollection
+    +getStaffNoPaging(request: Request): PositionCollection
+}
+
+class Holiday {
+    + id: integer
+    + name: string
+    + date: date
+    + created_at: datetime
+    + updated_at: datetime
+    + deleted_at: datetime
+    + getAll(request: Request): HolidayCollection
+    + getPerYear(year: int): HolidayCollection
+    + getById(id: int): JsonResponse
+    + store(request: HolidayFormRequest): JsonResponse
+    + update(request: HolidayFormRequest, id: int): JsonResponse
+    + delete(id: int): JsonResponse
+}
+
+class RemoteSchedule {
+    + id: int
+    + user_id: int
+    + date: Date
+    + created_at: datetime
+    + updated_at: datetime
+    + deleted_at: datetime
+    + getAll(request: Request): RemoteScheduleCollection
+    + getPerYear(year: int): RemoteScheduleCollection
+    + getById(id: int): JsonResponse
+    + store(request: RemoteScheduleFormRequest)
+    + update(request: RemoteScheduleFormRequest, id: int): JsonResponse
+    + delete(id: int): JsonResponse
+}
+
+class LeaveType {
+    + id: int
+    + name: string
+    + created_at: datetime
+    + updated_at: datetime
+    + deleted_at: datetime
+    +getAll(request: Request): LeaveTypeCollection
+}
+
+class Leave {
+    + id: int
+    + leave_type_id: int
+    + workstate_id: int
+    + user_id: int
+    + approver_user_id: int
+    + approved_date: datetime
+    + attachment: string
+    + notes: string
+    + approval_notes: string
+    + created_at: datetime
+    + updated_at: datetime
+    + deleted_at: datetime
+    + getAll(request: Request): LeaveCollection
+    + export(startDate: string, endDate: string)
+    + getPerYear(year: int): LeaveCollection
+    + getById(request: Request, id: int): JsonResponse
+    + getTodayRequestedCount(): JsonResponse
+    + getTodayApprovedSickCount(): JsonResponse
+    + getTodayApprovedLeaveCount(): JsonResponse
+    + getRequestedById(request: Request, id: int): JsonResponse
+    + store(request: LeaveFormRequest)
+    + update(request: LeaveFormRequest, id: int): JsonResponse
+    + approve(request: ChangeLeaveStatusFormRequest, id: int): JsonResponse
+    + cancel(id: int): JsonResponse
+}
+
+class LeaveDetail {
+    + id: integer
+    + workstate_id: integer
+    + leave_id: integer
+    + leave_date: date
+    + created_at: datetime
+    + updated_at: datetime
+    + deleted_at: datetime
+}
+
+class Workstate {
+    + id: integer
+    + name: string
+    + created_at: datetime
+    + updated_at: datetime
+    + deleted_at: datetime
+    + getAll(request: Request): WorkstateCollection
+}
+
+class Presence {
+    + id: integer
+    + user_id: integer
+    + is_late: integer
+    + schedule_time_in: time
+    + schedule_time_out: time
+    + time_in: time
+    + time_out: time
+    + longitude_clock_in: string
+    + latitude_clock_in: string
+    + clock_in_distance: string
+    + longitude_clock_out: string
+    + latitude_clock_out: string
+    + clock_out_distance: string
+    + face_image_clock_in: string
+    + face_image_clock_out: string
+    + is_remote: integer
+    + created_at: datetime
+    + updated_at: datetime
+    + deleted_at: datetime
+    + getAll(request: Request): PresenceCollection
+    + export(startDate: string, endDate: string)
+    + getTodayCount(): JsonResponse
+    + getById(id: int): JsonResponse
+    + checkStatus(): JsonResponse
+    + clockIn(request: ClockInFormRequest): JsonResponse
+    + clockOut(request: ClockInFormRequest): JsonResponse
+}
+
+class Setting {
+    + id: integer
+    + office_address: text
+    + office_longitude: string
+    + office_latitude: string
+    + max_distance: integer
+    + created_at: datetime
+    + updated_at: datetime
+    + deleted_at: datetime
+    + get(): JsonResponse
+    + update(request: SettingFormRequest): JsonResponse
+}
+
+Position "1" --> "N" User : One to Many
+User "1" --> "N" RemoteSchedule : One to Many
+User "1" --> "N" Presence : One to Many
+User "1" --> "N" Leave : One to Many user_id
+User "1" --> "N" Leave : One to Many approver_user_id
+LeaveType "1" --> "N" Leave : One to Many
+Leave "1" --> "N" LeaveDetail : One to Many
+Workstate "1" --> "N" Leave : One to Many
+Workstate "1" --> "N" LeaveDetail : One to Many
+
+@enduml
