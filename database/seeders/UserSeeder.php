@@ -42,7 +42,7 @@ class UserSeeder extends Seeder
                 'face_image' => 'default-profile.png',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
-            ],            
+            ],
             [
                 'position_id' => 3,
                 'nik' => Util::generateNumber(16),
@@ -68,7 +68,46 @@ class UserSeeder extends Seeder
                 'face_image' => 'default-profile.png',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
-            ]
+            ],
+            [
+                'position_id' => 3,
+                'nik' => Util::generateNumber(16),
+                'name' => 'Cloud Strife',
+                'phone' => '085900829912',
+                'gender' => 'M',
+                'email' => 'cloud@gmail.com',
+                'password' => Hash::make('P@ssw0rd?/'),
+                'profile_image' => 'default-profile.png',
+                'face_image' => 'default-profile.png',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ],
+            [
+                'position_id' => 3,
+                'nik' => Util::generateNumber(16),
+                'name' => 'Zack',
+                'phone' => '085900829912',
+                'gender' => 'M',
+                'email' => 'rufus@gmail.com',
+                'password' => Hash::make('P@ssw0rd?/'),
+                'profile_image' => 'default-profile.png',
+                'face_image' => 'default-profile.png',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ],
+            [
+                'position_id' => 3,
+                'nik' => Util::generateNumber(16),
+                'name' => 'Rufus Shinra',
+                'phone' => '085900829912',
+                'gender' => 'M',
+                'email' => 'rufus@gmail.com',
+                'password' => Hash::make('P@ssw0rd?/'),
+                'profile_image' => 'default-profile.png',
+                'face_image' => 'default-profile.png',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ],
         ];
         User::insert($arr);
     }

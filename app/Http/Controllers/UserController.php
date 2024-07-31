@@ -240,6 +240,18 @@ class UserController extends Controller
             if ($putFile)
                 $user->profile_image = $profileImage;
         }
+        if (
+            ($request->has('old_password') && $request->old_password != '') ||
+            ($request->has('new_password') && $request->new_password != '')
+        ) {
+            if (!Hash::check($request->old_password, $user->password))
+                return response()->json([
+                    'errors' => [
+                        'old_password' => ['Password lama tidak valid']
+                    ]
+                ], 422);
+            $user->password = Hash::make($request->new_password);
+        }
         $user->save();
         return (new UserResource($user))->response();
     }

@@ -1,5 +1,7 @@
 @startuml
 
+skinparam defaultFontSize 32
+
 class User {
     +id: integer
     +position_id: integer

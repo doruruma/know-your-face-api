@@ -15,18 +15,28 @@ class HolidaySeeder extends Seeder
         Holiday::truncate();
 
         $db = new Holiday;
+        $db->name = 'Hari Lahir Pancasila';
+        $db->date = '2024-06-01';
+        $db->save();
+
+        $db = new Holiday;
         $db->name = 'Idul Adha';
         $db->date = '2024-06-17';
         $db->save();
 
         $db = new Holiday;
-        $db->name = 'Libur fiktif 1';
-        $db->date = '2024-06-01';
+        $db->name = 'Cuti Bersama Idul Adha';
+        $db->date = '2024-06-18';
         $db->save();
 
         $db = new Holiday;
-        $db->name = 'Libur fiktif 2';
-        $db->date = '2024-06-05';
+        $db->name = 'Tahun Baru Islam 1446H';
+        $db->date = '2024-07-07';
+        $db->save();
+
+        $db = new Holiday;
+        $db->name = 'Hari Kemerdekaan Indonesia 79';
+        $db->date = '2024-08-17';
         $db->save();
     }
 }
